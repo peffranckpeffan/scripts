@@ -1,0 +1,82 @@
+{
+  "restraints":[
+    {
+      "folder": "t",
+      "type" : "trans",
+      "out_files":"",
+      "properties":[
+        {
+          "name" : "posit2",
+          "colvars": "posit-XY-lig",
+          "centers": "0.0",
+          "forceConstant": "10"
+        },
+        {
+          "name" : "posit3",
+          "colvars": "posit-Z-lig",
+          "centers": "4.0",
+          "forceConstant": "10"
+        }
+      ]
+    },
+    {
+      "type" : "orient",
+      "folder": "o",
+      "out_files":"",
+      "properties":[
+        {
+          "name" : "orient2",
+          "colvars": "orient-lig",
+          "centers": "(1.0, 0.0, 0.0, 0.0)",
+          "forceConstant": "1000"
+        }
+      ]
+    },
+    {
+      "type": "lrmsd",
+      "folder": "r",
+      "out_files":"",
+      "properties":[
+        { 
+          "name" : "rmsd2",
+          "colvars": "rmsd-lig",
+          "centers": "0.0",
+          "forceConstant": "20"
+        }
+      ]
+      
+    },  
+    {
+      "type":"prmsd",
+      "folder": "p",
+      "properties":[
+        {
+          "name" : "rmsd1",
+          "colvars": "rmsd-prot",
+          "centers": "0.0",
+          "forceConstant": "20"
+        }
+      ]
+    },
+    {
+      "type":"bulk",
+      "folder": "b",
+      "properties":[
+        {
+          "name" : "rmsd1",
+          "colvars": "rmsd-prot",
+          "centers": "0.0",
+          "forceConstant": "20"
+        },
+        {
+          "name" : "rmsd2",
+          "colvars": "rmsd-lig",
+          "centers": "0.0",
+          "forceConstant": "20"
+        }
+      ]
+    }
+  ]
+}
+
+
