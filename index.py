@@ -14,7 +14,6 @@ def call_subprocess(command, directory, s):
 	subp.wait()
 
 def update_dummy(colvar_dir, colvar_name_list, center_file, selection, stage):
-	print("AQUI:"+center_file)
 	call_subprocess("env center_file='"+center_file+"' selection='"+selection+"' vmd -dispdev text -e ../scripts/lib-tcl/get-center-mass.tcl", "../"+colvar_dir, True)
 	
 	centerFile = open("../"+colvar_dir+"/center.tmp")
@@ -47,15 +46,25 @@ def update_dummy(colvar_dir, colvar_name_list, center_file, selection, stage):
 
 	os.remove("../"+colvar_dir+"/center.tmp")
 
-def createDir(name):
-	if not os.path.exists(name):
-		os.makedirs(name)
+def createDir(location):
+	if not os.path.exists(location):
+		os.makedirs(location)
 #Copy the lines from a file to another file
 
 def copyFileLines(fileFrom, fileTo):
 	file = open(fileFrom)
 	for line in file:
 		fileTo.write(line)
+
+def getEnergy(file, collum):
+	energy = np.genfromtxt('../analysis/'+file, usecols=(collum)).transpose()
+	return float(energy[len(energy)-1])
+
+def copyAllFilesWith(source_dir, dest_dir, expression):
+	files = glob.iglob(os.path.join(source_dir, expression))
+	for file in files:
+		if (os.path.isfile(file)):
+			shutil.copy2(file, dest_dir)
 
 goFoward=True
 stage=""
@@ -82,21 +91,31 @@ if goFoward:
 
 
 if goFoward:
+	if (stage == "init"):
+		createDir("../equil")
+		copyAllFilesWith('../common','../equil', '*eq*')
+		createDir("../restraints")
+		copyAllFilesWith('../common','../restraints', '*rest*')
+		createDir("../SMD")
+		copyAllFilesWith('../common','../SMD', '*smd*')
+		createDir("../US")
+		copyAllFilesWith('../common','../US', '*us*')
+
 	if (stage == "equil"):
 
 		#Mount the system
 		call_subprocess("vmd -dispdev text -e ../scripts/lib-tcl/setup-equil.tcl", "../equil", True)
 
 		#Update the dummy atom
-		update_dummy('equil', ['colvar.inp'], "../common/solvate.pdb", "segname A and backbone", stage)
+		update_dummy('equil', ['colv-equil'], "../common/solvate.pdb", "segname A and backbone", stage)
 
 		if (ifExec=="exec"):
 			file_eq=Path('../equil/out_eq.dcd')
 			if (file_eq.exists()):
-				call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf_eq2 > conf_eq2.log", "../equil", True)
+				call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf-eq2 > conf-eq2.log", "../equil", True)
 			else:
-				call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf_eq > conf_eq.log", "../equil", True)
-				call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf_eq2 > conf_eq2.log", "../equil", True)
+				call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf-eq > conf-eq.log", "../equil", True)
+				call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf-eq2 > conf-eq2.log", "../equil", True)
 			
 
 	if (stage == "smd"):
@@ -108,14 +127,14 @@ if goFoward:
 		update_dummy('SMD', ['colv-smd.inp'], "../equil/out_eq2.restart.coor", "segname B and backbone", stage)
 
 		if (ifExec=="exec" and Path('../equil/out_eq.dcd').exists()):
-			call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf_smd > conf_smd.log", "../SMD", True)
+			call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf-smd > conf-smd.log", "../SMD", True)
 
 	if (stage == "us"):
 
 		call_subprocess("vmd -dispdev text -e ../scripts/lib-tcl/setup-smd.tcl", "../US", True)
 
-		update_dummy('US', ['basic_colv'], "../common/solvate.pdb", "segname A and backbone", 'equil')
-		update_dummy('US', ['basic_colv'], "../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
+		update_dummy('US', ['basic_colv-us'], "../common/solvate.pdb", "segname A and backbone", 'equil')
+		update_dummy('US', ['basic_colv-us'], "../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
 
 		#PREPARING MINIMIZATION
 		steps=500000
@@ -168,12 +187,12 @@ if goFoward:
 			conf_file.write( "## JOB DESCRIPTION                                  ##" + "\n" )
 			conf_file.write( "######################################################" + "\n" )
 			conf_file.write( "" )
-			copyFileLines("../US/basic_conf", conf_file)
+			copyFileLines("../US/basic_conf-us", conf_file)
 			conf_file.write("run "+ str(steps))
 			conf_file.close();
 
 			tcl_file = open("../US/u"+str(window)+"/"+colv_inp, "w")
-			copyFileLines("../US/basic_colv", tcl_file)
+			copyFileLines("../US/basic_colv-us", tcl_file)
 			tcl_file.write( "" )
 			tcl_file.write( "harmonic { " + "\n")
 			tcl_file.write( "  name posit3 \n" )
@@ -240,7 +259,7 @@ if goFoward:
 			conf_file.write( "## JOB DESCRIPTION                                  ##" + "\n" )
 			conf_file.write( "######################################################" + "\n" )
 			conf_file.write( "" )
-			copyFileLines("../US/basic_conf", conf_file)
+			copyFileLines("../US/basic_conf-us", conf_file)
 			conf_file.write("run "+ str(steps))
 			conf_file.close();
 
@@ -265,7 +284,7 @@ if goFoward:
 		
 		call_subprocess("vmd -dispdev text -e ../scripts/lib-tcl/setup-smd.tcl", "../restraints", True)
 
-		basic_colv_list=['basic_colv-bulk', 'basic_colv-lrmsd', 'basic_colv-orient', 'basic_colv-prmsd', 'basic_colv-trans']
+		basic_colv_list=['basic_colv-rest-bulk', 'basic_colv-rest-lrmsd', 'basic_colv-rest-orient', 'basic_colv-rest-prmsd', 'basic_colv-rest-trans']
 		update_dummy('restraints', basic_colv_list, "../common/solvate.pdb", "segname A and backbone", 'equil')
 		update_dummy('restraints', basic_colv_list, "../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
 
@@ -326,13 +345,13 @@ if goFoward:
 				conf_file.write( "## JOB DESCRIPTION                                  ##" + "\n" )
 				conf_file.write( "######################################################" + "\n" )
 				conf_file.write( "" )
-				copyFileLines("../restraints/basic_conf", conf_file)
+				copyFileLines("../restraints/basic_conf-rest", conf_file)
 				conf_file.write("run "+ str(steps))
 				conf_file.close();
 
 
 				colv_file = open("../restraints/"+restraints[count_rest]["folder"]+str(nr)+"/"+colv_inp, "w")
-				copyFileLines("../restraints/basic_colv-" + restraints[count_rest]["type"], colv_file)
+				copyFileLines("../restraints/basic_colv-rest-" + restraints[count_rest]["type"], colv_file)
 				counter_rest2=0
 				
 				while len(restraints[count_rest]["properties"]) > counter_rest2:
@@ -371,7 +390,55 @@ if goFoward:
 						call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf_rest-"+str(window)+" > conf_rest-"+str(window)+".log", "../restraints/"+folders[x]+str(window), True)
 
 
+if stage=="analysis":
+	stageAnalysis=sys.argv[2]
+	if stageAnalysis=="us":
+		folders=["u"]
+		num_fold=42
+		prefix="run"
+		stageAnalysis=stageAnalysis.upper()
+	else:
+		folders= ["o", "t", "r", "p", "b", "l"]
+		num_fold=15
+		prefix="rest"
 
+
+	for x in range(len(folders)):
+		for i in range(0,num_fold):
+			window=str(i).zfill(2)
+			
+			folder_copy = folders[x]+window
+			folder_for = folder_copy
+
+			if folders[x] == "l":
+				folder_copy="b"+window
+
+			createDir("../analysis/"+folder_for)
+
+			copyfile("../"+stageAnalysis+"/"+folder_copy+"/out_"+prefix+"-"+window+".colvars.traj", "../analysis/"+folder_for+"/restraints.dat")
+			copyfile("../"+stageAnalysis+"/"+folder_copy+"/colv-"+window, "../analysis/"+folder_for+"/colvar.in")
+
+		print("analyzing folder "+folders[x])
+		call_subprocess("python ../scripts/FE-MBAR.py "+folders[x]+" 298", "../analysis", True)
+		call_subprocess("python ../scripts/FE-MBAR-ns.py "+folders[x]+" 298", "../analysis", True)
+
+	#writing relevant data to a file
+	K_bT=0.0019872041*298
+	fileType=['allsp', 'subs']
+	if(Path("../analysis/"+fileType[0]+"-l.100.dat").exists() and Path("../analysis/"+fileType[0]+"-u.100.dat").exists()):	
+		freeEnergies = open("../analysis/RESULT.dat", "w")
+		freeEnergies.write("MDM2 conf-bulk	"+str(getEnergy(fileType[0]+"-b.100.dat",1))+" +- "+str(getEnergy(fileType[1]+"-b.100.dat",2)) +'\n')
+		freeEnergies.write("MDM2 conf-site	"+str(getEnergy(fileType[0]+"-p.100.dat",1))+" +- "+str(getEnergy(fileType[1]+"-p.100.dat",2))+'\n')
+		freeEnergies.write("p53 conf-bulk	"+str(getEnergy(fileType[0]+"-l.100.dat",1))+" +- "+str(getEnergy(fileType[1]+"-l.100.dat",2))+'\n')
+		freeEnergies.write("p53 conf-site	"+str(getEnergy(fileType[0]+"-r.100.dat",1))+" +- "+str(getEnergy(fileType[1]+"-r.100.dat",2))+'\n')
+		freeEnergies.write("p53 orient-bulk	6.72" +'\n')
+		freeEnergies.write("p53 orient-site	"+str(getEnergy(fileType[0]+"-o.100.dat",1))+" +- "+str(getEnergy(fileType[1]+"-o.100.dat",2))+'\n')
+		freeEnergies.write("k_B Tln(C^0S) 5.00" +'\n')
+		freeEnergies.write("p53 axial-site	"+str(getEnergy(fileType[0]+"-t.100.dat",1))+" +- "+str(getEnergy(fileType[1]+"-t.100.dat",2))+'\n')
+		freeEnergies.write("k_B Tln(I)	"+str(getEnergy(fileType[0]+"-u.100.dat",1))+" +- "+str(getEnergy(fileType[1]+"-u.100.dat",2))+'\n'+'\n')
+		freeEnergies.write("TOTAL:" +str(getEnergy(fileType[0]+"-b.100.dat",1)-getEnergy(fileType[0]+"-p.100.dat",1)+getEnergy(fileType[0]+"-l.100.dat",1)
+			-getEnergy(fileType[0]+"-r.100.dat",1)+6.72+5.00-getEnergy(fileType[0]+"-t.100.dat",1)-getEnergy(fileType[0]+"-o.100.dat",1)-getEnergy(fileType[0]+"-u.100.dat",1)))
+		freeEnergies.close()
 
 
 
