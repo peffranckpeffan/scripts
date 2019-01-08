@@ -9,6 +9,26 @@ import pymbar # multistate Bennett acceptance ratio
 import timeseries # timeseries analysis
 import math
 
+### Arguments
+aur = sys.argv[1] # a or u or r or d
+temp = float(sys.argv[2]) # temp
+kB = 1.381e-23 * 6.022e23 / (4.184 * 1000.0) # Boltzmann constant in kJ/mol/K
+beta = 1/(kB * temp) # beta
+N_max = 2000000 # Max frames for any simulation window, you should check this if you did some long runs
+
+sys.stdout = open('allsp-'+aur+'.log', 'w')
+### Determine Number of umbrellas
+K = 0
+filename = './'+aur+'%02.0f/restraints.dat' % K
+while os.path.isfile(filename):
+  K = K+1
+  filename = './'+aur+'%02.0f/restraints.dat' % K
+
+
+R = 1
+
+print  "K= %5.0f  R= %5.0f" % ( K, R ) 
+
 
 ### Calculate Statistical Inefficiency (g)
 def calcg(data):
@@ -27,11 +47,10 @@ def calcg(data):
 
   with open(acffn, 'r') as acf:
     for line in acf:
-      print line
-  #     col = line.split()
-  #     t = float(col[0]) - 1.0
-  # T = t
-  sys.exit()
+      col = line.split()
+      t = float(col[0]) - 1.0
+  T = t
+
   with open(acffn, 'r') as acf:
     for line in acf:
       col = line.split()
@@ -47,25 +66,6 @@ def calcg(data):
 
   return 1+(2*sum)
 
-### Arguments
-aur = sys.argv[1] # t or u or r or d
-temp = float(sys.argv[2]) # temp
-phase = int(sys.argv[3]) # phase
-kB = 1.381e-23 * 6.022e23 / (4.184 * 1000.0) # Boltzmann constant in kJ/mol/K
-beta = 1/(kB * temp) # beta
-N_max = 2000000 # Max frames for any simulation window, you should check this if you did some long runs
-
-sys.stdout = open('subs-'+aur+'.log', 'w')
-### Determine Number of umbrellas
-K = 0
-filename = './'+aur+'%02.0f/restraints.dat' % K
-while os.path.isfile(filename):
-  K = K+1
-  filename = './'+aur+'%02.0f/restraints.dat' % K
-
-R = 1
-
-print  "K= %5.0f  R= %5.0f" % ( K, R ) 
 
 ### Allocate storage for simulation data
 N = np.zeros([K], np.int32)                       # N_k[k] is the number of snapshots to be used from umbrella simulation k
@@ -74,12 +74,9 @@ Nind = np.zeros([K], np.int32)
 Nprg = np.zeros([K], np.int32)
 rty = ['d']*R                                     # restraint type (distance or angle)
 rfc = np.zeros([K,R], np.float64)                 # restraint force constant
-rfc2 = np.zeros([K,R], np.float64)                 # restraint force constant
 fcmax = np.zeros([R], np.float64)                 # full force constant value used during umbrella portion of work 
 req = np.zeros([K,R], np.float64)                 # restraint target value
-req2 = np.zeros([K,R], np.float64)                 # restraint target value
 val = np.zeros([N_max,K,R], np.float64)           # value of the restrained variable at each frame n
-val2 = np.zeros([N_max,K,R], np.float64)           # value of the restrained variable at each frame n
 g = np.zeros([K], np.float64)
 
 ### Tmp type arrays for energy and spline fitting/integration
@@ -106,14 +103,6 @@ for k in range(K):
                req[k,r] = float(cols[1])
              if len(cols) != 0 and (cols[0] == "forceConstant"):
                rfc[k,r] = float(cols[1])/2
-               break
-         if 'posit3' in line:                          
-           for line in f:
-             cols = line.split()
-             if len(cols) != 0 and (cols[0] == "centers"):
-               req2[k,r] = float(cols[1])
-             if len(cols) != 0 and (cols[0] == "forceConstant"):
-               rfc2[k,r] = float(cols[1])/2
                break
   elif aur == 'o':
     with open('./'+aur+'%02.0f/colvar.in' % k, 'r') as f:
@@ -170,22 +159,15 @@ for k in range(K):
   infile.close()
   # Parse Data
   n = 0
-  ##ESSA VARIAEL S E PUTAMENTE IMPORTANTE KRA!!!! DIZ RESPEITO A FREQUENCIA DE IMPRESSAO DO TEU RESTRAINTS.DAT
   s = 0
-  from_line = -1
-  if phase == 0:
-    from_line = 500
   for line in restdat:
-    s += 1 #so ira analizar o arquivo a partir da linha 500!
-    if line[0] != '#' and line[0] != '@' and s > from_line:
+    s += 1
+    if line[0] != '#' and line[0] != '@' and s > 500:
       cols = line.split()
       if aur == 'o':
         val[n,k,r] = math.acos(float(cols[2]))
       elif aur == 'u' or aur == 'l':
         val[n,k,r] = float(cols[2])
-      elif aur == 't':
-         val[n,k,r] = float(cols[1])
-         val2[n,k,r] = float(cols[2])
       else:
         val[n,k,r] = float(cols[1])
       n += 1
@@ -195,35 +177,25 @@ for k in range(K):
   if aur == 'o':
     if rfc[k,0] == 0:
       tmp=np.ones([R],np.float64)*0.001
-      u[0:N[k]] = np.sum(beta*tmp[0:R]*((val[0:N[k],k,0:R])**2), axis=1)#->slicing syntax [0:N[k]]
+      u[0:N[k]] = np.sum(beta*tmp[0:R]*((val[0:N[k],k,0:R])**2), axis=1)
     else:
       u[0:N[k]] = np.sum(beta*rfc[k,0:R]*((val[0:N[k],k,0:R])**2), axis=1)
-  elif aur == 't':
-    if rfc[k,0] == 0 and rfc2[k,0] != 0:
-      tmp=np.ones([R],np.float64)*0.001
-      u[0:N[k]] = np.sum(beta*(tmp[0:R]*(((val[0:N[k],k,0:R]-req[k,0:R])**2)) + rfc2[k,0:R]*((val2[0:N[k],k,0:R]-req2[k,0:R])**2)), axis=1) #-> (1/k_bT)*Kx**2
-    elif rfc[k,0] != 0 and rfc2[k,0] == 0:
-      tmp=np.ones([R],np.float64)*0.001
-      u[0:N[k]] = np.sum(beta*(rfc[k,0:R]*(((val[0:N[k],k,0:R]-req[k,0:R])**2)) + tmp[0:R]*((val2[0:N[k],k,0:R]-req2[k,0:R])**2)), axis=1)
-    elif rfc[k,0] == 0 and rfc2[k,0] == 0:
-      tmp=np.ones([R],np.float64)*0.001
-      u[0:N[k]] = np.sum(beta*(tmp[0:R]*(((val[0:N[k],k,0:R]-req[k,0:R])**2)) + tmp[0:R]*((val2[0:N[k],k,0:R]-req2[k,0:R])**2)), axis=1)
-    else:
-      u[0:N[k]] = np.sum(beta*(rfc[k,0:R]*(((val[0:N[k],k,0:R]-req[k,0:R])**2)) + rfc2[k,0:R]*((val2[0:N[k],k,0:R]-req2[k,0:R])**2)), axis=1)
   else:
     if rfc[k,0] == 0:
       tmp=np.ones([R],np.float64)*0.001
-      u[0:N[k]] = np.sum(beta*tmp[0:R]*((val[0:N[k],k,0:R]-req[k,0:R])**2), axis=1) #-> (1/k_bT)*Kx**2
+      u[0:N[k]] = np.sum(beta*tmp[0:R]*((val[0:N[k],k,0:R]-req[k,0:R])**2), axis=1)
     else:
       u[0:N[k]] = np.sum(beta*rfc[k,0:R]*((val[0:N[k],k,0:R]-req[k,0:R])**2), axis=1)
 
-  g[k] = calcg(u[0:N[k]])
-  subs = timeseries.subsampleCorrelatedData(np.zeros([N[k]]),g=g[k])
-  Nind[k] = len(subs)
-  if Nind[k] > 100000:
-    Neff[k] = 100000
-  else:
-    Neff[k] = Nind[k]
+
+#  g[k] = calcg(u[0:N[k]])
+#  subs = timeseries.subsampleCorrelatedData(np.zeros([N[k]]),g=g[k])
+#  Nind[k] = len(subs)
+#  if Nind[k] > 100000:
+#    Neff[k] = 100000
+#  else:
+  Neff[k] = N[k]
+  Nind[k] = N[k]
 
 
   print  "Processed Window %5.0f.  N= %12.0f.  g= %10.3f   Nind= %12.0f   Neff= %12.0f" % ( k, N[k], g[k], Nind[k], Neff[k] )
@@ -237,8 +209,6 @@ for k in range(K):
   for l in range(K):
     if aur == 'o':
       Upot[k,l,0:Neff[k]] = np.sum(beta*rfc[l,0:R]*((val[0:Neff[k],k,0:R])**2), axis=1)
-    elif aur == 't':
-      Upot[k,l,0:Neff[k]] = np.sum(beta*(rfc[l,0:R]*((val[0:Neff[k],k,0:R]-req[l,0:R])**2) + rfc2[l,0:R]*((val2[0:Neff[k],k,0:R]-req2[l,0:R])**2)), axis=1)
     else:
       Upot[k,l,0:Neff[k]] = np.sum(beta*rfc[l,0:R]*((val[0:Neff[k],k,0:R]-req[l,0:R])**2), axis=1)
 
@@ -261,13 +231,10 @@ for p in range(len(prg)):
   # Write to file
   print  "Free Energy Differences (in units of kcal/mol)"
   print  "%9s %8s %8s %12s %12s" % ('bin', 'f', 'df', 'deq', 'dfc')
-  datfile = open('subs-'+aur+'.%03.0f.dat' % prg[p], 'w')
+  datfile = open('allsp-'+aur+'.%03.0f.dat' % prg[p], 'w')
   for k in range(K):
-    if aur == 'r' or aur == 'o' or aur == 'p' or aur == 'b' or aur == 'l':
+    if aur == 't' or aur == 'r' or aur == 'o' or aur == 'p' or aur == 'b' or aur == 'l':
       print "%10.5f %10.5f %10.5f %12.7f %12.7f" % ( rfc[k,0]/rfc[-1,0], Deltaf[0,k]/beta, dDeltaf[0,k]/beta, req[k,0], rfc[k,0] )
-      datfile.write ( "%10.5f %10.5f %10.5f %12.7f %12.7f\n" % ( rfc[k,0]/rfc[-1,0], Deltaf[0,k]/beta, dDeltaf[0,k]/beta, req[k,0], rfc[k,0] ) )
-    elif aur == 't':
-      print "%10.5f %10.5f %10.5f %12.7f %12.7f %12.7f %12.7f" % ( rfc[k,0]/rfc[-1,0], Deltaf[0,k]/beta, dDeltaf[0,k]/beta, req[k,0], req2[k,0], rfc[k,0] ,rfc2[k,0])
       datfile.write ( "%10.5f %10.5f %10.5f %12.7f %12.7f\n" % ( rfc[k,0]/rfc[-1,0], Deltaf[0,k]/beta, dDeltaf[0,k]/beta, req[k,0], rfc[k,0] ) )
     elif aur == 'd':
       print "%9.0f %10.5f %10.5f %12.7f %12.7f" % ( k, Deltaf[0,k]/beta, dDeltaf[0,k]/beta, req[k,0], rfc[k,0]/rfc[-1,0] )

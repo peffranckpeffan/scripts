@@ -9,11 +9,11 @@ set win [expr int([expr $range/$spacing]) + 1]
 set a [atomselect top all frame 0]
 $a writenamdbin out_smd-00.restart.coor
 for {set i 0} {$i < $win} {incr i} {
-set j [format "%02d" [expr $i + 1]]
-set fra [expr round([expr $i*$spacing*$intv])]
-set a [atomselect top all frame $fra]
-$a writenamdbin out_smd-$j.restart.coor
-puts $fra
+	set j [format "%02d" [expr $i + 1]]
+	set fra [expr round([expr $i*$spacing*$intv])]
+	#set a [atomselect top all frame $fra]
+	#$a writenamdbin out_smd-$j.restart.coor
+	puts "$j $i $fra"
 } 
 
 exit
