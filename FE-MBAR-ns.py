@@ -13,7 +13,10 @@ import pprint as pp
 ### Arguments
 aur = sys.argv[1] # a or u or r or d
 temp = float(sys.argv[2]) # temp
-phase = int(sys.argv[3]) # phase
+try:
+  phase = int(sys.argv[3]) # phase
+except:
+  phase = 0 # phase
 kB = 1.381e-23 * 6.022e23 / (4.184 * 1000.0) # Boltzmann constant in kJ/mol/K
 beta = 1/(kB * temp) # beta
 N_max = 2000000 # Max frames for any simulation window, you should check this if you did some long runs
@@ -144,7 +147,7 @@ for k in range(K):
   s = 0
   from_line = -1
   if phase == 0:
-    from_line = 500
+    from_line = -1
   for line in restdat:
     s += 1 #so ira analizar o arquivo a partir da linha 500!
     if line[0] != '#' and line[0] != '@' and s > from_line:

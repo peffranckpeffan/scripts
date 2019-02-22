@@ -27,11 +27,9 @@ def calcg(data):
 
   with open(acffn, 'r') as acf:
     for line in acf:
-      print line
-  #     col = line.split()
-  #     t = float(col[0]) - 1.0
-  # T = t
-  sys.exit()
+      col = line.split()
+      t = float(col[0]) - 1.0
+  T = t
   with open(acffn, 'r') as acf:
     for line in acf:
       col = line.split()
@@ -50,7 +48,10 @@ def calcg(data):
 ### Arguments
 aur = sys.argv[1] # t or u or r or d
 temp = float(sys.argv[2]) # temp
-phase = int(sys.argv[3]) # phase
+try:
+  phase = int(sys.argv[3]) # phase
+except:
+  phase = 0 # phase
 kB = 1.381e-23 * 6.022e23 / (4.184 * 1000.0) # Boltzmann constant in kJ/mol/K
 beta = 1/(kB * temp) # beta
 N_max = 2000000 # Max frames for any simulation window, you should check this if you did some long runs
@@ -170,7 +171,6 @@ for k in range(K):
   infile.close()
   # Parse Data
   n = 0
-  ##ESSA VARIAEL S E PUTAMENTE IMPORTANTE KRA!!!! DIZ RESPEITO A FREQUENCIA DE IMPRESSAO DO TEU RESTRAINTS.DAT
   s = 0
   from_line = -1
   if phase == 0:

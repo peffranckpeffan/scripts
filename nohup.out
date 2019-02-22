@@ -1,4 +1,174 @@
-['teste1', 'teste2', 'teste3']
-['teste.py', '1', '2', '3']
-['teste.py', '1', '2', '3']
-4
+/usr/local/lib/vmd/vmd_LINUXAMD64: /usr/lib/x86_64-linux-gnu/libGL.so.1: no version information available (required by /usr/local/lib/vmd/vmd_LINUXAMD64)
+Info) VMD for LINUXAMD64, version 1.9.3 (November 30, 2016)
+Info) http://www.ks.uiuc.edu/Research/vmd/                         
+Info) Email questions and bug reports to vmd@ks.uiuc.edu           
+Info) Please include this reference in published work using VMD:   
+Info)    Humphrey, W., Dalke, A. and Schulten, K., `VMD - Visual   
+Info)    Molecular Dynamics', J. Molec. Graphics 1996, 14.1, 33-38.
+Info) -------------------------------------------------------------
+Info) Multithreading available, 6 CPUs detected.
+Info)   CPU features: SSE2 AVX AVX2 FMA 
+Info) Free system memory: 5113MB (64%)
+Info) Creating CUDA device pool and initializing hardware...
+Info) Detected 1 available CUDA accelerator:
+Info) [0] GeForce GTX 1070   15 SM_6.1 @ 1.68 GHz, 7.9GB RAM, KTO, AE2, ZCP
+Info) Detected 1 available TachyonL/OptiX ray tracing accelerator
+Info)   Compiling 1 OptiX shaders on 1 target GPU...
+Info) Dynamically loaded 4 plugins in directory:
+Info) /usr/local/lib/vmd/plugins/LINUXAMD64/molfile
+/usr/local/lib/vmd/scripts/tcl8.5 /usr/local/lib/vmd/scripts /usr/local/lib/lib /Projects/johns/tcl/8.5.6/lib_LINUXAMD64/lib /usr/local/lib/vmd/scripts/vmd /usr/local/lib/vmd/plugins/LINUXAMD64/tcl /usr/local/lib/vmd/plugins/noarch/tcl ~/franck-hd/softwares-ic/la101psx
+/usr/local/lib/vmd/scripts/tcl8.5 /usr/local/lib/vmd/scripts /usr/local/lib/lib /Projects/johns/tcl/8.5.6/lib_LINUXAMD64/lib /usr/local/lib/vmd/scripts/vmd /usr/local/lib/vmd/plugins/LINUXAMD64/tcl /usr/local/lib/vmd/plugins/noarch/tcl ~/franck-hd/softwares-ic/la101psx ~/franck-hd/softwares-ic/orient
+psfplugin) Detected a Charmm PSF file
+Info) Using plugin psf for structure file ../common/solvate.psf
+Info) Analyzing structure ...
+Info)    Atoms: 30815
+Info)    Bonds: 21079
+Info)    Angles: 12762  Dihedrals: 4491  Impropers: 257  Cross-terms: 94
+Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
+Info)    Residues: 9851
+Info)    Waters: 9696
+Info)    Segments: 5
+Info)    Fragments: 9755   Protein: 2   Nucleic: 0
+Info) Using plugin pdb for coordinates from file ../common/solvate.pdb
+Info) Finished with coordinate file ../common/solvate.pdb.
+0
+atomselect0
+Info) Opened coordinate file refumb0.pdb for writing.
+Info) Finished with coordinate file refumb0.pdb.
+atomselect1
+atomselect2
+Info) Opened coordinate file atoms.pdb for writing.
+Info) Finished with coordinate file atoms.pdb.
+Info) VMD for LINUXAMD64, version 1.9.3 (November 30, 2016)
+Info) Exiting normally.
+ERROR) Error reading Tcl input: bad file number
+/usr/local/lib/vmd/vmd_LINUXAMD64: /usr/lib/x86_64-linux-gnu/libGL.so.1: no version information available (required by /usr/local/lib/vmd/vmd_LINUXAMD64)
+Info) VMD for LINUXAMD64, version 1.9.3 (November 30, 2016)
+Info) http://www.ks.uiuc.edu/Research/vmd/                         
+Info) Email questions and bug reports to vmd@ks.uiuc.edu           
+Info) Please include this reference in published work using VMD:   
+Info)    Humphrey, W., Dalke, A. and Schulten, K., `VMD - Visual   
+Info)    Molecular Dynamics', J. Molec. Graphics 1996, 14.1, 33-38.
+Info) -------------------------------------------------------------
+Info) Multithreading available, 6 CPUs detected.
+Info)   CPU features: SSE2 AVX AVX2 FMA 
+Info) Free system memory: 5110MB (64%)
+Info) Creating CUDA device pool and initializing hardware...
+Info) Detected 1 available CUDA accelerator:
+Info) [0] GeForce GTX 1070   15 SM_6.1 @ 1.68 GHz, 7.9GB RAM, KTO, AE2, ZCP
+Info) Detected 1 available TachyonL/OptiX ray tracing accelerator
+Info)   Compiling 1 OptiX shaders on 1 target GPU...
+Info) Dynamically loaded 4 plugins in directory:
+Info) /usr/local/lib/vmd/plugins/LINUXAMD64/molfile
+/usr/local/lib/vmd/scripts/tcl8.5 /usr/local/lib/vmd/scripts /usr/local/lib/lib /Projects/johns/tcl/8.5.6/lib_LINUXAMD64/lib /usr/local/lib/vmd/scripts/vmd /usr/local/lib/vmd/plugins/LINUXAMD64/tcl /usr/local/lib/vmd/plugins/noarch/tcl ~/franck-hd/softwares-ic/la101psx
+/usr/local/lib/vmd/scripts/tcl8.5 /usr/local/lib/vmd/scripts /usr/local/lib/lib /Projects/johns/tcl/8.5.6/lib_LINUXAMD64/lib /usr/local/lib/vmd/scripts/vmd /usr/local/lib/vmd/plugins/LINUXAMD64/tcl /usr/local/lib/vmd/plugins/noarch/tcl ~/franck-hd/softwares-ic/la101psx ~/franck-hd/softwares-ic/orient
+psfplugin) Detected a Charmm PSF file
+Info) Using plugin psf for structure file ../common/solvate.psf
+Info) Analyzing structure ...
+Info)    Atoms: 30815
+Info)    Bonds: 21079
+Info)    Angles: 12762  Dihedrals: 4491  Impropers: 257  Cross-terms: 94
+Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
+Info)    Residues: 9851
+Info)    Waters: 9696
+Info)    Segments: 5
+Info)    Fragments: 9755   Protein: 2   Nucleic: 0
+0
+Info) Using plugin pdb for coordinates from file ../common/solvate.pdb
+Info) Finished with coordinate file ../common/solvate.pdb.
+0
+atomselect0
+-0.3033020794391632 -0.2381625771522522 -2.0945606231689453
+0
+file24
+Info) VMD for LINUXAMD64, version 1.9.3 (November 30, 2016)
+Info) Exiting normally.
+ERROR) Error reading Tcl input: bad file number
+/bin/sh: 1: namd2: not found
+/bin/sh: 1: namd2: not found
+/usr/local/lib/vmd/vmd_LINUXAMD64: /usr/lib/x86_64-linux-gnu/libGL.so.1: no version information available (required by /usr/local/lib/vmd/vmd_LINUXAMD64)
+Info) VMD for LINUXAMD64, version 1.9.3 (November 30, 2016)
+Info) http://www.ks.uiuc.edu/Research/vmd/                         
+Info) Email questions and bug reports to vmd@ks.uiuc.edu           
+Info) Please include this reference in published work using VMD:   
+Info)    Humphrey, W., Dalke, A. and Schulten, K., `VMD - Visual   
+Info)    Molecular Dynamics', J. Molec. Graphics 1996, 14.1, 33-38.
+Info) -------------------------------------------------------------
+Info) Multithreading available, 6 CPUs detected.
+Info)   CPU features: SSE2 AVX AVX2 FMA 
+Info) Free system memory: 5144MB (64%)
+Info) Creating CUDA device pool and initializing hardware...
+Info) Detected 1 available CUDA accelerator:
+Info) [0] GeForce GTX 1070   15 SM_6.1 @ 1.68 GHz, 7.9GB RAM, KTO, AE2, ZCP
+Info) Detected 1 available TachyonL/OptiX ray tracing accelerator
+Info)   Compiling 1 OptiX shaders on 1 target GPU...
+Info) Dynamically loaded 4 plugins in directory:
+Info) /usr/local/lib/vmd/plugins/LINUXAMD64/molfile
+/usr/local/lib/vmd/scripts/tcl8.5 /usr/local/lib/vmd/scripts /usr/local/lib/lib /Projects/johns/tcl/8.5.6/lib_LINUXAMD64/lib /usr/local/lib/vmd/scripts/vmd /usr/local/lib/vmd/plugins/LINUXAMD64/tcl /usr/local/lib/vmd/plugins/noarch/tcl ~/franck-hd/softwares-ic/la101psx
+/usr/local/lib/vmd/scripts/tcl8.5 /usr/local/lib/vmd/scripts /usr/local/lib/lib /Projects/johns/tcl/8.5.6/lib_LINUXAMD64/lib /usr/local/lib/vmd/scripts/vmd /usr/local/lib/vmd/plugins/LINUXAMD64/tcl /usr/local/lib/vmd/plugins/noarch/tcl ~/franck-hd/softwares-ic/la101psx ~/franck-hd/softwares-ic/orient
+psfplugin) Detected a Charmm PSF file
+Info) Using plugin psf for structure file ../common/solvate.psf
+Info) Analyzing structure ...
+Info)    Atoms: 30815
+Info)    Bonds: 21079
+Info)    Angles: 12762  Dihedrals: 4491  Impropers: 257  Cross-terms: 94
+Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
+Info)    Residues: 9851
+Info)    Waters: 9696
+Info)    Segments: 5
+Info)    Fragments: 9755   Protein: 2   Nucleic: 0
+Info) Using plugin pdb for coordinates from file ../common/solvate.pdb
+Info) Finished with coordinate file ../common/solvate.pdb.
+0
+atomselect0
+Info) Opened coordinate file refumb0.pdb for writing.
+Info) Finished with coordinate file refumb0.pdb.
+atomselect1
+atomselect2
+Info) Opened coordinate file atoms.pdb for writing.
+Info) Finished with coordinate file atoms.pdb.
+Info) VMD for LINUXAMD64, version 1.9.3 (November 30, 2016)
+Info) Exiting normally.
+ERROR) Error reading Tcl input: bad file number
+/usr/local/lib/vmd/vmd_LINUXAMD64: /usr/lib/x86_64-linux-gnu/libGL.so.1: no version information available (required by /usr/local/lib/vmd/vmd_LINUXAMD64)
+Info) VMD for LINUXAMD64, version 1.9.3 (November 30, 2016)
+Info) http://www.ks.uiuc.edu/Research/vmd/                         
+Info) Email questions and bug reports to vmd@ks.uiuc.edu           
+Info) Please include this reference in published work using VMD:   
+Info)    Humphrey, W., Dalke, A. and Schulten, K., `VMD - Visual   
+Info)    Molecular Dynamics', J. Molec. Graphics 1996, 14.1, 33-38.
+Info) -------------------------------------------------------------
+Info) Multithreading available, 6 CPUs detected.
+Info)   CPU features: SSE2 AVX AVX2 FMA 
+Info) Free system memory: 5142MB (64%)
+Info) Creating CUDA device pool and initializing hardware...
+Info) Detected 1 available CUDA accelerator:
+Info) [0] GeForce GTX 1070   15 SM_6.1 @ 1.68 GHz, 7.9GB RAM, KTO, AE2, ZCP
+Info) Detected 1 available TachyonL/OptiX ray tracing accelerator
+Info)   Compiling 1 OptiX shaders on 1 target GPU...
+Info) Dynamically loaded 4 plugins in directory:
+Info) /usr/local/lib/vmd/plugins/LINUXAMD64/molfile
+/usr/local/lib/vmd/scripts/tcl8.5 /usr/local/lib/vmd/scripts /usr/local/lib/lib /Projects/johns/tcl/8.5.6/lib_LINUXAMD64/lib /usr/local/lib/vmd/scripts/vmd /usr/local/lib/vmd/plugins/LINUXAMD64/tcl /usr/local/lib/vmd/plugins/noarch/tcl ~/franck-hd/softwares-ic/la101psx
+/usr/local/lib/vmd/scripts/tcl8.5 /usr/local/lib/vmd/scripts /usr/local/lib/lib /Projects/johns/tcl/8.5.6/lib_LINUXAMD64/lib /usr/local/lib/vmd/scripts/vmd /usr/local/lib/vmd/plugins/LINUXAMD64/tcl /usr/local/lib/vmd/plugins/noarch/tcl ~/franck-hd/softwares-ic/la101psx ~/franck-hd/softwares-ic/orient
+psfplugin) Detected a Charmm PSF file
+Info) Using plugin psf for structure file ../common/solvate.psf
+Info) Analyzing structure ...
+Info)    Atoms: 30815
+Info)    Bonds: 21079
+Info)    Angles: 12762  Dihedrals: 4491  Impropers: 257  Cross-terms: 94
+Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
+Info)    Residues: 9851
+Info)    Waters: 9696
+Info)    Segments: 5
+Info)    Fragments: 9755   Protein: 2   Nucleic: 0
+0
+Info) Using plugin pdb for coordinates from file ../common/solvate.pdb
+Info) Finished with coordinate file ../common/solvate.pdb.
+0
+atomselect0
+-0.3033020794391632 -0.2381625771522522 -2.0945606231689453
+0
+file24
+Info) VMD for LINUXAMD64, version 1.9.3 (November 30, 2016)
+Info) Exiting normally.
+ERROR) Error reading Tcl input: bad file number

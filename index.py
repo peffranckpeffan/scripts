@@ -16,9 +16,13 @@ from lib.py import analysis
 #restraints - python index.py restraints [folder to be executed (t, o, r, p, b, all)] [phase] {exec}
 #us - python index.py us [stage] {exec}
 #analysis - python index.py analysis [(us or restraints)]->[specific restraint?] [phase]
+
+#NEEDS TO BE INSTALLED
+#akima, pymbar, scipy, timeseries
 goFoward=True
 stage=""
 res_folder=""
+ifExec = 0
 
 stages=['equil', 'smd', 'restraints', 'us', 'analysis', 'init']
 folders_rest=['b', 'l', 'o', 'p', 'r', 't']
@@ -32,6 +36,10 @@ if stage not in stages:
 	sys.exit('Stage of the analysis informed don\'t exist.')
 
 else:
+
+	if (stage == 'equil'):
+		if ("exec" in sys.argv):
+			ifExec = 1
 	
 	if (stage == 'restraints'):
 		if ("exec" in sys.argv and len(sys.argv) < 5) or ("exec" not in sys.argv and len(sys.argv) < 4):
@@ -100,48 +108,52 @@ if (stage == "init"):
 	copyAllFilesWith('../common','../US', '*us*')
 
 elif (stage == "equil"):
+	util.createDir("../equil")
+	util.copyAllFilesWith('../common','../equil', '*eq*')
 
 	#Mount the system
-	call_subprocess("vmd -dispdev text -e ../scripts/lib-tcl/setup-equil.tcl", "../equil", True)
+	util.call_subprocess("vmd -dispdev text -e ../scripts/lib/tcl/setup-equil.tcl", "../equil", True)
 
 	#Update the dummy atom
-	update_dummy('equil', ['colv-equil'], "../common/solvate.pdb", "segname A and backbone", stage)
+	util.update_dummy('equil', ['colv-equil'], "../common/solvate.pdb", "segname A and backbone", stage)
 
-	if (ifExec=="exec"):
+	if (ifExec==1):
 		file_eq=Path('../equil/out_eq.dcd')
 		if (file_eq.exists()):
-			call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf-eq2 > conf-eq2.log", "../equil", True)
+			util.call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf-eq2 > conf-eq2.log", "../equil", True)
 		else:
-			call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf-eq > conf-eq.log", "../equil", True)
-			call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf-eq2 > conf-eq2.log", "../equil", True)
+			util.call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf-eq > conf-eq.log", "../equil", True)
+			util.call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf-eq2 > conf-eq2.log", "../equil", True)
 		
 
 elif (stage == "smd"):
 
 	#Mount the system
-	call_subprocess("vmd -dispdev text -e ../scripts/lib-tcl/setup-smd.tcl", "../SMD", True)
+	util.call_subprocess("vmd -dispdev text -e ../scripts/lib/tcl/setup-smd.tcl", "../SMD", True)
 
 	#Update dummyatom
-	update_dummy('SMD', ['colv-smd.inp'], "../equil/out_eq2.restart.coor", "segname B and backbone", stage)
+	util.update_dummy('SMD', ['colv-smd.inp'], "../equil/out_eq2.restart.coor", "segname B and backbone", stage)
 
 	if (ifExec=="exec" and Path('../equil/out_eq.dcd').exists()):
-		call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf-smd > conf-smd.log", "../SMD", True)
+		util.call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf-smd > conf-smd.log", "../SMD", True)
 
 elif (stage == "us"):
 
-	call_subprocess("vmd -dispdev text -e ../scripts/lib-tcl/setup-smd.tcl", "../US", True)
+	window_path  = [4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 14.5, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5, 24.0]
+	totrange = window_path[len(window_path)-1]-window_path[0]
+	
+	util.call_subprocess("vmd -dispdev text -e ../scripts/lib-tcl/setup-smd.tcl", "../US", True)
 
-	update_dummy('common', ['basic_colv-us'], "../common/solvate.pdb", "segname A and backbone", 'equil')
-	update_dummy('common', ['basic_colv-us'], "../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
+	util.update_dummy('common', ['basic_colv-us'], "../common/solvate.pdb", "segname A and backbone", 'equil')
+	util.update_dummy('common', ['basic_colv-us'], "../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
 
 	if(not(Path('../US/u41/out_min-41.restart.coor').exists())):
 		#PREPARING MINIMIZATION
 		steps=500000
 		#initial window in posit_wind + space_bet_wind (3.5)
-		posit_wind=3.0
-		space_bet_wind=0.5
+		i = 0
+		for position in window_path:
 
-		for i in range(42):
 			window=str(i).zfill(2)
 			
 			inputt="min-"+str(window)
@@ -198,9 +210,11 @@ elif (stage == "us"):
 			tcl_file.write( "} " + "\n")
 			tcl_file.write( "" )
 			tcl_file.close();
+			i=i+1
 
 	if(not(Path('../US/u41/out_smd-41.restart.coor').exists())):
-		call_subprocess("vmd -dispdev text -e ../scripts/lib-tcl/get-frames.tcl", "../US", True)
+		util.call_subprocess("env totrange='"+totrange+"' window_path='"+str(window_path).replace(' ', '').replace('[','').replace(']', '')+"' vmd -dispdev text -e ../scripts/lib-tcl/get-frames.tcl", "../US", True)
+
 
 
 	#PREPARING TO RUN US
@@ -273,7 +287,7 @@ elif (stage == "us"):
 			for i in range(0,42):
 				window=str(i).zfill(2)
 				print(process[x])
-				call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf_"+process[x]+"-"+str(window)+" > conf_"+process[x]+"-"+str(window)+".log", "../US/u"+str(window), True)
+				util.call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf_"+process[x]+"-"+str(window)+" > conf_"+process[x]+"-"+str(window)+".log", "../US/u"+str(window), True)
 
 #CALCULATE RESTRICTIONS
 elif (stage == 'restraints'):
@@ -305,10 +319,14 @@ elif (stage == 'restraints'):
 			else:
 				nr=counter
 
-			pr="eq2"
+			if restraints[count_rest]["folder"] == 'b':
+				input_pr='smd'
+				stagepr='SMD'
+			else:
+				input_pr="eq2"
+				stagepr='equil'
+
 			inputt="rest-" + str(nr)
-			input_pr=pr
-			#input_fr="rest-" + str(fr)
 			conf_name="conf_" + str(inputt)
 			colv_inp="colv-" + str(nr)
 
@@ -323,7 +341,7 @@ elif (stage == 'restraints'):
 			conf_file.write( "set input " + inputt + "\n" )
 			conf_file.write( "set input_pr " + input_pr + "\n" )
 			conf_file.write( "set colv_inp " + colv_inp + "\n" )
-			conf_file.write( "set inputname   ../../equil/out_$input_pr" + "\n" )
+			conf_file.write( "set inputname   ../../"+stagepr+"/out_$input_pr" + "\n" )
 			conf_file.write( "set outputname  ./out_$input" + "\n" )
 			conf_file.write( "bincoordinates  $inputname.restart.coor" + "\n" )
 			conf_file.write( "binvelocities   $inputname.restart.vel" + "\n" )
@@ -394,54 +412,72 @@ elif stage=="analysis":
 		prefix = "run" + phase
 		folders = ["u"]
 		stageAnalysis = stageAnalysis.upper()
-		init_fold=1
 	else:
 		prefix ="rest" + phase
-		init_fold=0
 		if (res_folder == 'all'):
 			folders = folders_rest
 		else:
 			folders = [res_folder]
 
+	dir_analyse = '../'+stageAnalysis+'/'
+	windows_analyse = []
+	for prefix_folder in folders:
+		folder_to_count = prefix_folder
 
-	for x in range(len(folders)):
-		num_folder = 0
-		folder_to_count = folders[x]
-		
-		if (folders[x] == 'l'):
+		if (prefix_folder == 'l'):
 			folder_to_count = 'b'
-		
-		while os.path.exists('../'+stageAnalysis+'/'+folder_to_count+str(num_folder).zfill(2)):
-			num_folder = num_folder + 1
-		
-		for i in range(init_fold, num_folder):
-			window=str(i).zfill(2)
 
-			folder_copy = folders[x]+window
-			folder_for = folder_copy
+		for window in os.listdir(dir_analyse):
+			
+			if os.path.isdir(dir_analyse+window) and folder_to_count in window:
+				windows_analyse.append(window)
 
-			if (folders[x] == 'l'):
-				folder_copy = 'b' + window
-
-			elif (folders[x] == 'u'):
-				folder_for = folders[x]+str(i-1).zfill(2)
+		windows_analyse = sorted(windows_analyse, key=lambda x: float(x[1:]))
+		for index, window in enumerate(windows_analyse):
+			
+			folder_from = window
+	 		folder_for = prefix_folder + str(index).zfill(2)
 
 			util.createDir("../analysis/"+folder_for)
+			util.copyfile("../"+stageAnalysis+"/"+folder_from+"/out_"+prefix+"-"+window.split(folder_to_count)[1]+".colvars.traj", "../analysis/"+folder_for+"/restraints.dat")
+			util.copyfile("../"+stageAnalysis+"/"+folder_from+"/colv-"+window.split(folder_to_count)[1], "../analysis/"+folder_for+"/colvar.in")
 
-			util.copyfile("../"+stageAnalysis+"/"+folder_copy+"/out_"+prefix+"-"+window+".colvars.traj", "../analysis/"+folder_for+"/restraints.dat")
-			util.copyfile("../"+stageAnalysis+"/"+folder_copy+"/colv-"+window, "../analysis/"+folder_for+"/colvar.in")
+		print("Analyzing folder " + prefix_folder)
+		util.call_subprocess("python ../scripts/FE-MBAR.py "+prefix_folder+" 298 "+ phase, "../analysis", True)
+		util.call_subprocess("python ../scripts/FE-MBAR-ns.py "+prefix_folder+" 298 "+ phase, "../analysis", True)
 
-		print("Analyzing folder " + folders[x])
-		util.call_subprocess("python ../scripts/FE-MBAR.py "+folders[x]+" 298 "+phase, "../analysis", True)
-		util.call_subprocess("python ../scripts/FE-MBAR-ns.py "+folders[x]+" 298 "+phase, "../analysis", True)
-
+		del windows_analyse[:]
+	
 	#writing relevant data to a file
 	K_bT=((1.381e-23 * 6.022e23) / (4.184 * 1000.0))*298
 	fileType = ['allsp', 'subs']
 	folders = folders_rest.append('u')
+
+	if not Path("../analysis/RESULT.dat").exists():
+		freeEnergiesFile = open("../analysis/RESULT.dat", "w")
+		freeEnergiesFile.write("Data taken from:"+"\n")
+		if phase == "":
+			phase = '0'
+		if Path("../analysis/"+fileType[0]+"-t.100.dat").exists():
+			freeEnergiesFile.write("Restraints: Simulation phase "+phase+"\n")
+			freeEnergiesFile.write("US: Analysis not Performed yet."+"\n")
+		elif Path("../analysis/"+fileType[0]+"-u.100.dat").exists():
+			freeEnergiesFile.write("Restraints: Analysis not Performed yet."+"\n")
+			freeEnergiesFile.write("US: Simulation phase "+phase)
+	else:
+		lines = open("../analysis/RESULT.dat", "r").readlines()
+		freeEnergiesFile = open("../analysis/RESULT.dat", "w")
+		for index,line in enumerate(lines):
+			if stageAnalysis == 'restraints' and Path("../analysis/"+fileType[0]+"-t.100.dat").exists() and 'Restraints' in line:
+				line = "Restraints: Simulation phase "+phase+"\n"
+			elif stageAnalysis == 'US' and Path("../analysis/"+fileType[0]+"-u.100.dat").exists() and 'US' in line:
+				line = "US: Simulation phase "+phase
+			
+			if index == 0 or index == 1 or index == 2:
+				freeEnergiesFile.write(line)
+
 	
 	if(Path("../analysis/"+fileType[0]+"-t.100.dat").exists() and Path("../analysis/"+fileType[0]+"-u.100.dat").exists()):	
-		freeEnergies = open("../analysis/RESULT.dat", "w")
 
 		total = 0
 		energies = {}
@@ -449,20 +485,20 @@ elif stage=="analysis":
 		for folder in ['b', 'l', 'o', 'p', 'r', 't', 'u']:
 			vals = []
 			for y in range(1,3):#valor absoluto posicao 1 e seu erro 2
-				vals.append(util.getEnergy(fileType[0]+"-"+folder+".100.dat", y))
+				vals.append(util.getEnergy(fileType[y-1]+"-"+folder+".100.dat", y))
 			energies[folder] = vals
-			 
-		freeEnergies.write("Protein Conformational Bulk	%10.5f +- %10.5f \n" % (energies['b'][0], energies['b'][1])) 
-		freeEnergies.write("Protein Conformational Site	%10.5f +- %10.5f \n" % (energies['p'][0], energies['p'][1]))	
-		freeEnergies.write("Ligand Conformational Bulk	%10.5f +- %10.5f \n" % (energies['l'][0], energies['l'][1])) 
-		freeEnergies.write("Ligand Conformational Site	%10.5f +- %10.5f \n" % (energies['r'][0], energies['r'][1])) 
-		freeEnergies.write("Ligand Orientational Bulk		6.72 \n")
-		freeEnergies.write("Ligand Orientational Site	%10.5f +- %10.5f \n" % (energies['o'][0], energies['o'][1])) 
-		freeEnergies.write("Ligand Translational Bulk		5.27 \n")
-		freeEnergies.write("Ligand Translational Site	%10.5f +- %10.5f \n" % (energies['t'][0], energies['t'][1])) 
-		freeEnergies.write("PMF							%10.5f +- %10.5f \n\n" % (energies['u'][0], energies['u'][1])) 
+		freeEnergiesFile.write("\n\n\n")	 
+		freeEnergiesFile.write("Protein Conformational Bulk	%10.5f +- %10.5f \n" % (energies['b'][0], energies['b'][1])) 
+		freeEnergiesFile.write("Protein Conformational Site	%10.5f +- %10.5f \n" % (energies['p'][0], energies['p'][1]))	
+		freeEnergiesFile.write("Ligand Conformational Bulk	%10.5f +- %10.5f \n" % (energies['l'][0], energies['l'][1])) 
+		freeEnergiesFile.write("Ligand Conformational Site	%10.5f +- %10.5f \n" % (energies['r'][0], energies['r'][1])) 
+		freeEnergiesFile.write("Ligand Orientational Bulk		6.72 \n")
+		freeEnergiesFile.write("Ligand Orientational Site	%10.5f +- %10.5f \n" % (energies['o'][0], energies['o'][1])) 
+		freeEnergiesFile.write("Ligand Translational Bulk		5.27 \n")
+		freeEnergiesFile.write("Ligand Translational Site	%10.5f +- %10.5f \n" % (energies['t'][0], energies['t'][1])) 
+		freeEnergiesFile.write("PMF							%10.5f +- %10.5f \n\n" % (energies['u'][0], energies['u'][1])) 
 		
 		total = energies['b'][0] - energies['p'][0] + energies['l'][0] - energies['r'][0] + 6.72 - energies['o'][0] + 5.27 - energies['t'][0] - energies['u'][0]
 		
-		freeEnergies.write("TOTAL: %f \n\n" % (total))
-		freeEnergies.close()
+		freeEnergiesFile.write("TOTAL: %f \n\n" % (total))
+		freeEnergiesFile.close()
