@@ -18,7 +18,7 @@ from lib.py import analysis
 #analysis - python index.py analysis [(us or restraints)]->[specific restraint?] [phase]
 
 #NEEDS TO BE INSTALLED
-#akima, pymbar, scipy, timeseries
+#akima, pymbar, scipy, timeseries, configparser
 goFoward=True
 stage=""
 res_folder=""
@@ -40,6 +40,10 @@ else:
 	if (stage == 'equil'):
 		if ("exec" in sys.argv):
 			ifExec = 1
+
+	if (stage == 'smd'):
+		if ("exec" in sys.argv):
+			ifExec = 1
 	
 	if (stage == 'restraints'):
 		if ("exec" in sys.argv and len(sys.argv) < 5) or ("exec" not in sys.argv and len(sys.argv) < 4):
@@ -57,15 +61,20 @@ else:
 
 		if (res_folder not in folders_rest and res_folder != 'all' ):
 			sys.exit("Folder especificied do not exist. Please inform: t, o, r, p, b, all")
+		if ("exec" in sys.argv):                                                                                                        
+		 	ifExec = 1
 
 	if (stage == 'us'):
-		if ("exec" in sys.argv and len(sys.argv) < 4) or ("exec" not in sys.argv and len(sys.argv) < 3):
+		if ("exec" in sys.argv and len(sys.argv) < 4) or ("exec" not in sys.argv and len(sys.argv) < 2):
 			sys.exit("Missing options. Check sintax.")
 
 		try:
 			phase=sys.argv[2]
 		except:
 			sys.exit("It's necessary to inform de phase of the simulation to be generated.")
+
+		if ("exec" in sys.argv):
+			ifExec = 1
 	
 	if (stage == 'analysis'):
 		try:
@@ -102,14 +111,13 @@ if (stage == "init"):
 	copyAllFilesWith('../common','../equil', '*eq*')
 	createDir("../restraints")
 	copyAllFilesWith('../common','../restraints', '*rest*')
-	createDir("../SMD")
-	copyAllFilesWith('../common','../SMD', '*smd*')
 	createDir("../US")
 	copyAllFilesWith('../common','../US', '*us*')
 
 elif (stage == "equil"):
 	util.createDir("../equil")
-	util.copyAllFilesWith('../common','../equil', '*eq*')
+	util.copyAllFilesWith('lib/colv-files','../equil', '*eq*')
+	util.copyAllFilesWith('lib/conf-files','../equil', '*eq*')
 
 	#Mount the system
 	util.call_subprocess("vmd -dispdev text -e ../scripts/lib/tcl/setup-equil.tcl", "../equil", True)
@@ -127,27 +135,34 @@ elif (stage == "equil"):
 		
 
 elif (stage == "smd"):
+	util.createDir("../SMD")
+	util.copyAllFilesWith('lib/colv-files','../SMD', '*smd*')
+	util.copyAllFilesWith('lib/conf-files','../SMD', '*smd*')
 
 	#Mount the system
 	util.call_subprocess("vmd -dispdev text -e ../scripts/lib/tcl/setup-smd.tcl", "../SMD", True)
 
 	#Update dummyatom
-	util.update_dummy('SMD', ['colv-smd.inp'], "../equil/out_eq2.restart.coor", "segname B and backbone", stage)
+	util.update_dummy('SMD', ['colv-smd'], "../equil/out_eq2.restart.coor", "segname B and backbone", stage)
 
-	if (ifExec=="exec" and Path('../equil/out_eq.dcd').exists()):
+	if (ifExec==1 and Path('../equil/out_eq2.dcd').exists()):
 		util.call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf-smd > conf-smd.log", "../SMD", True)
 
 elif (stage == "us"):
+	if not(Path('../US').exists()):
+		util.createDir("../US")
+		util.copyAllFilesWith('lib/colv-files','../US', '*us*')
+		util.copyAllFilesWith('lib/conf-files','../US', '*us*')
 
 	window_path  = [4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 14.5, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5, 24.0]
 	totrange = window_path[len(window_path)-1]-window_path[0]
 	
-	util.call_subprocess("vmd -dispdev text -e ../scripts/lib-tcl/setup-smd.tcl", "../US", True)
+	util.call_subprocess("vmd -dispdev text -e ../scripts/lib/tcl/setup-smd.tcl", "../US", True)
 
-	util.update_dummy('common', ['basic_colv-us'], "../common/solvate.pdb", "segname A and backbone", 'equil')
-	util.update_dummy('common', ['basic_colv-us'], "../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
+	util.update_dummy('scripts/lib/colv-files/', ['basic_colv-us'], "../../../common/solvate.pdb", "segname A and backbone", 'equil')
+	util.update_dummy('scripts/lib/colv-files/', ['basic_colv-us'], "../../../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
 
-	if(not(Path('../US/u41/out_min-41.restart.coor').exists())):
+	if(not(Path('../US/u40/out_min-40.restart.coor').exists())):
 		#PREPARING MINIMIZATION
 		steps=500000
 		#initial window in posit_wind + space_bet_wind (3.5)
@@ -160,11 +175,10 @@ elif (stage == "us"):
 			input_pr="smd-"+str(window)
 			conf_name="conf_"+inputt
 			colv_inp="colv-"+str(window)
-			posit_wind = posit_wind + space_bet_wind
 
 			print("conf_name: " + conf_name + "; input: " + "; " + inputt +"," + input_pr + "; window: " + str(window))
 
-			createDir("../US/u"+str(window))
+			util.createDir("../US/u"+str(window))
 
 			conf_file = open("../US/u"+str(window)+"/"+conf_name, 'w')
 			conf_file.write( "######################################################" + "\n" )
@@ -195,42 +209,48 @@ elif (stage == "us"):
 			conf_file.write( "## JOB DESCRIPTION                                  ##" + "\n" )
 			conf_file.write( "######################################################" + "\n" )
 			conf_file.write( "" )
-			copyFileLines("../common/basic_conf-us", conf_file)
+			util.copyFileLines("lib/conf-files/basic_conf-us", conf_file)
 			conf_file.write("run "+ str(steps))
 			conf_file.close();
 
 			tcl_file = open("../US/u"+str(window)+"/"+colv_inp, "w")
-			copyFileLines("../common/basic_colv-us", tcl_file)
+			util.copyFileLines("lib/colv-files/basic_colv-us", tcl_file)
 			tcl_file.write( "" )
 			tcl_file.write( "harmonic { " + "\n")
 			tcl_file.write( "  name posit3 \n" )
 			tcl_file.write( "  colvars posit-Z-lig \n" )
-			tcl_file.write( "  centers " +  str(posit_wind) + "\n" )
+			tcl_file.write( "  centers " +  str(position) + "\n" )
 			tcl_file.write( "  forceConstant 10.0 \n" )
 			tcl_file.write( "} " + "\n")
 			tcl_file.write( "" )
 			tcl_file.close();
 			i=i+1
 
-	if(not(Path('../US/u41/out_smd-41.restart.coor').exists())):
-		util.call_subprocess("env totrange='"+totrange+"' window_path='"+str(window_path).replace(' ', '').replace('[','').replace(']', '')+"' vmd -dispdev text -e ../scripts/lib-tcl/get-frames.tcl", "../US", True)
+	if(not(Path('../US/u40/out_smd-40.restart.coor').exists())):
+		util.call_subprocess("env totrange='"+str(totrange)+"' window_path='"+str(window_path).replace(' ', '').replace('[','').replace(']', '')+"' vmd -dispdev text -e ../scripts/lib/tcl/get-frames.tcl", "../US", True)
 
 
 
 	#PREPARING TO RUN US
 	steps=1000000
 	#initial window in posit_wind + space_bet_wind (3.5)
-	posit_wind=3.0
-	space_bet_wind=0.5
+	i = 0
 
-	for i in range(0,42):
+	for position in window_path:
 		window=str(i).zfill(2)
 
-		inputt="run-"+str(window)
-		input_pr="min-"+str(window)
+		if phase == '0':
+			inputt="run-"+str(window)
+			input_pr="min-"+str(window)
+		elif phase == '1':
+			inputt="run1-"+str(window)
+			input_pr="run-"+str(window)
+		else:
+			inputt="run"+phase+"-"+str(window)
+			input_pr="run"+str(int(phase)-1)+"-"+str(window)
+		
 		conf_name="conf_"+inputt
 		colv_inp="colv-"+str(window)
-		posit_wind = posit_wind + space_bet_wind
 
 		print("conf_name: " + conf_name + "; input: " + "; " + inputt +"," + input_pr + "; window: " + str(window))
 
@@ -266,40 +286,47 @@ elif (stage == "us"):
 		conf_file.write( "## JOB DESCRIPTION                                  ##" + "\n" )
 		conf_file.write( "######################################################" + "\n" )
 		conf_file.write( "" )
-		copyFileLines("../common/basic_conf-us", conf_file)
+		util.copyFileLines("lib/conf-files/basic_conf-us", conf_file)
 		conf_file.write("run "+ str(steps))
 		conf_file.close();
+		i=i+1
 
-	print("PHASE: "+ phaseUs)
-	if ifExec=="exec":
-		if (phaseUs=='0'):
+	print("PHASE: "+ phase)
+	if ifExec==1:
+		if (phase=='0'):
 			process=["min", "run"]
-			print("The minization of the system will be perfomed followed by the run "+phaseUs+" of the PMF.")
-		elif(phaseUs!='0' and not(Path('../US/u41/out_min-41.restart.coor').exists())):
+			print("The minization of the system will be perfomed followed by the run "+phase+" of the PMF.")
+		elif(phase!='0' and not(Path('../US/u40/out_min-40.restart.coor').exists())):
 			process=["min", "run"]
 			print("The minization of the system will be perfomed followed by the run 0 of the PMF.")
-		elif(phaseUs!='0' and Path('../US/u41/out_run'+str(int(phaseUs)-1)+'-41.restart.coor').exists()):
-			process=["run"+str(phaseUs)]
+		elif(phase =='1' and Path('../US/u40/out_run-40.restart.coor').exists()):
+			process=["run1"]
+		elif(phase!='0' and Path('../US/u40/out_run'+str(int(phase)-1)+'-40.restart.coor').exists()):
+			process=["run"+str(phase)]
 		else:
 			print("The pointed phase of the PMF simulations does not fit with the previous runs, check yours files and try again.")
 			quit()
 		for x in range(len(process)):
-			for i in range(0,42):
+			for i in range(0,len(window_path)):
 				window=str(i).zfill(2)
-				print(process[x])
+				print(process[x] + " " + window)
 				util.call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf_"+process[x]+"-"+str(window)+" > conf_"+process[x]+"-"+str(window)+".log", "../US/u"+str(window), True)
 
 #CALCULATE RESTRICTIONS
 elif (stage == 'restraints'):
+	if not(Path('../restraints').exists()):
+		util.createDir("../restraints")
+		util.copyAllFilesWith('lib/colv-files','../restraints', '*basic_colv*')
+		util.copyAllFilesWith('lib/conf-files','../restraints', '*basic_conf-rest*')
 
 	steps=1000000
 	restraints=json.load(open("restraints.json"))["restraints"]
 	
-	call_subprocess("vmd -dispdev text -e ../scripts/lib-tcl/setup-smd.tcl", "../restraints", True)
+	util.call_subprocess("vmd -dispdev text -e ../scripts/lib/tcl/setup-smd.tcl", "../restraints", True)
 
 	basic_colv_list=['basic_colv-rest-bulk', 'basic_colv-rest-lrmsd', 'basic_colv-rest-orient', 'basic_colv-rest-prmsd', 'basic_colv-rest-trans']
-	update_dummy('restraints', basic_colv_list, "../common/solvate.pdb", "segname A and backbone", 'equil')
-	update_dummy('restraints', basic_colv_list, "../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
+	util.update_dummy('scripts/lib/colv-files/', basic_colv_list, "../../../common/solvate.pdb", "segname A and backbone", 'equil')
+	util.update_dummy('scripts/lib/colv-files/', basic_colv_list, "../../../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
 
 	multipliers=[0.00, 0.40, 0.80, 1.60, 2.40, 4.00, 5.50, 8.65, 11.80, 18.10, 24.40, 37.00, 49.60, 74.80, 100.00]
 	j="0"
@@ -319,18 +346,33 @@ elif (stage == 'restraints'):
 			else:
 				nr=counter
 
-			if restraints[count_rest]["folder"] == 'b':
-				input_pr='smd'
-				stagepr='SMD'
+
+			if phase=='0':
+				if restraints[count_rest]["folder"] == 'b':
+					inputt='smd'
+					input_dir='../../SMD'
+				else:
+					inputt="eq2"
+					input_dir='../../equil'
+				output="rest-" + str(nr)
+			elif phase=='1':
+				inputt="rest-" + str(nr)
+				input_dir='.'
+				output="rest1-" + str(nr)
 			else:
-				input_pr="eq2"
-				stagepr='equil'
+				inputt="rest"+str(int(phase)-1)+"-" + str(nr)
+				input_dir='.'
+				output="rest"+phase+"-" + str(nr)	
 
-			inputt="rest-" + str(nr)
-			conf_name="conf_" + str(inputt)
+
+			if phase == "0":
+				phase = ""
+
+			conf_name="conf_" + output
 			colv_inp="colv-" + str(nr)
-
-			createDir("../restraints/"+restraints[count_rest]["folder"] + str(nr))
+			
+			if not(Path("../restraints/"+restraints[count_rest]["folder"] + str(nr)).exists()):
+				util.createDir("../restraints/"+restraints[count_rest]["folder"] + str(nr))
 
 			print("conf_name: " + conf_name + "; force_const: " + str(restraints[count_rest]["properties"][0]['forceConstant']) +"; " + restraints[count_rest]["folder"]  + str(nr))
 
@@ -339,10 +381,10 @@ elif (stage == 'restraints'):
 			conf_file.write( "# INPUT AND OUTPUT FILES                           ##" + "\n" )
 			conf_file.write( "######################################################" + "\n" )
 			conf_file.write( "set input " + inputt + "\n" )
-			conf_file.write( "set input_pr " + input_pr + "\n" )
+			conf_file.write( "set output " + output + "\n" )
 			conf_file.write( "set colv_inp " + colv_inp + "\n" )
-			conf_file.write( "set inputname   ../../"+stagepr+"/out_$input_pr" + "\n" )
-			conf_file.write( "set outputname  ./out_$input" + "\n" )
+			conf_file.write( "set inputname   "+input_dir+"/out_$input" + "\n" )
+			conf_file.write( "set outputname  ./out_$output" + "\n" )
 			conf_file.write( "bincoordinates  $inputname.restart.coor" + "\n" )
 			conf_file.write( "binvelocities   $inputname.restart.vel" + "\n" )
 			conf_file.write( "extendedSystem  $inputname.restart.xsc" + "\n" )
@@ -362,13 +404,13 @@ elif (stage == 'restraints'):
 			conf_file.write( "## JOB DESCRIPTION                                  ##" + "\n" )
 			conf_file.write( "######################################################" + "\n" )
 			conf_file.write( "" )
-			copyFileLines("../common/basic_conf-rest", conf_file)
+			util.copyFileLines("lib/conf-files/basic_conf-rest", conf_file)
 			conf_file.write("run "+ str(steps))
 			conf_file.close();
 
 
 			colv_file = open("../restraints/"+restraints[count_rest]["folder"]+str(nr)+"/"+colv_inp, "w")
-			copyFileLines("../common/basic_colv-rest-" + restraints[count_rest]["type"], colv_file)
+			util.copyFileLines("lib/colv-files/basic_colv-rest-" + restraints[count_rest]["type"], colv_file)
 			counter_rest2=0
 			
 			while len(restraints[count_rest]["properties"]) > counter_rest2:
@@ -389,9 +431,13 @@ elif (stage == 'restraints'):
 			counter=counter+1
 		count_rest=count_rest+1
 
-	if ifExec=="exec":
+	if ifExec==1:
 
-		folders=["t", "o", "r", "p", "b"]
+		if phase == "0":
+			phase = ""
+
+		#folders=["t", "o", "r", "p", "b"]
+		folders=["t", "o", "r"]
 		if res_folder not in folders and res_folder != "all":
 			print("Specified folder does not exist.")
 		else:
@@ -401,7 +447,7 @@ elif (stage == 'restraints'):
 			for x in range(len(folders)):
 				for i in range(0,15):
 					window=str(i).zfill(2)
-					call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf_rest-"+str(window)+" > conf_rest-"+str(window)+".log", "../restraints/"+folders[x]+str(window), True)
+					util.call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf_rest"+phase+"-"+str(window)+" > conf_rest"+phase+"-"+str(window)+".log", "../restraints/"+folders[x]+str(window), True)
 
 
 elif stage=="analysis":

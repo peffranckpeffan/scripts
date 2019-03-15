@@ -6,7 +6,7 @@ $all set beta 0.0
 $all set occupancy 0.0
 $all writepdb refumb0.pdb
 set prot [atomselect top "segname A and backbone"]
-prot set occupancy 1.0
+$prot set occupancy 1.0
 set protr [atomselect top "segname A and noh and same residue as within 6 of segname B"]
 $protr set beta 3.0
 measure center $prot weight mass

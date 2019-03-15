@@ -1,0 +1,177 @@
+colvarsTrajFrequency 1000 # output values frequency
+
+
+colvar {
+  name orient-prot # needed to identify the variable
+
+  outputvalue off # do not output this variable
+
+  orientation   {
+    atoms {
+      atomsFile             ../atoms.pdb
+      atomsCol              O
+      atomsColValue         1.0
+     }
+
+
+   refPositionsFile      ../atoms.pdb
+   refPositionsCol       O
+   refPositionsColValue  1.0
+
+}
+}
+
+colvar {
+  name posit-prot # needed to identify the variable
+
+  outputvalue off # do not output this variable
+
+
+  distance {
+    group1 {
+      atomsFile             ../atoms.pdb
+      atomsCol              O
+      atomsColValue         1.0
+    }
+    group2 {
+	dummyatom (-0.3033020794391632, -0.2381625771522522, -2.0945606231689453) 
+    }
+  }
+}
+
+
+colvar {
+  name rmsd-prot 
+
+  outputvalue on
+
+  rmsd   {
+    atoms {
+      atomsFile             ../atoms.pdb
+      atomsCol              B
+      atomsColValue         3.0
+     }
+
+
+   refPositionsFile      ../atoms.pdb
+   refPositionsCol       B
+   refPositionsColValue  3.0
+
+}
+}
+
+
+colvar {
+  name rmsd-lig 
+
+  outputvalue on 
+
+  rmsd   {
+    atoms {
+      atomsFile             ../atoms.pdb
+      atomsCol              B
+      atomsColValue         4.0
+     }
+
+
+   refPositionsFile      ../atoms.pdb
+   refPositionsCol       B
+   refPositionsColValue  4.0
+
+}
+}
+
+colvar {
+  name orient-lig 
+
+  outputvalue off 
+
+  orientation   {
+    atoms {
+      atomsFile             ../atoms.pdb
+      atomsCol              O
+      atomsColValue         2.0
+     }
+
+
+   refPositionsFile      ../atoms.pdb
+   refPositionsCol       O
+   refPositionsColValue  2.0
+
+}
+}
+
+colvar {
+  name posit-XY-lig 
+
+  outputvalue on # report value, default
+
+
+  distanceXY {
+    main     {
+      atomsFile             ../atoms.pdb
+      atomsCol              O
+      atomsColValue         2.0
+    }
+    ref      {
+	dummyatom (-0.9596529603004456, 2.6307995319366455, 5.94609260559) 
+    }
+  }
+}
+
+
+colvar {
+  name posit-Z-lig 
+
+  outputvalue on # report value, default 
+
+
+  distanceZ {
+    main     {
+      atomsFile             ../atoms.pdb
+      atomsCol              O
+      atomsColValue         2.0
+    }
+    ref      {
+	dummyatom (-0.9596529603004456, 2.6307995319366455, 5.94609260559) 
+    }
+  }
+}
+
+harmonic {
+  name posit1
+  colvars posit-prot
+  centers 0.0
+  forceConstant 2000.0
+}
+
+
+harmonic {
+  name orient1
+  colvars orient-prot
+  centers (1.0, 0.0, 0.0, 0.0)
+  forceConstant 20000.0
+}
+
+harmonic {
+  name orient2
+  colvars orient-lig
+  centers (1.0, 0.0, 0.0, 0.0)
+  forceConstant 1000.0
+}
+
+harmonic {
+  name posit2
+  colvars posit-XY-lig
+  centers 0.0
+  forceConstant 10.0
+}
+
+
+harmonic {
+  name posit3
+  colvars posit-Z-lig
+  centers 25.0
+  forceConstant 10.0
+}
+

@@ -1,0 +1,133 @@
+######################################################
+## INPUT AND OUTPUT FILES                           ##
+######################################################
+set input       eq2
+set input_pr    eq
+set inputname   ./out_$input_pr
+set outputname  ./out_$input
+if {1} {
+bincoordinates   $inputname.restart.coor
+binvelocities    $inputname.restart.vel
+extendedSystem   $inputname.restart.xsc
+}
+set ref_umb      ./refumb0.pdb
+structure        ../common/solvate.psf
+coordinates      ../common/solvate.pdb
+
+######################################################
+## INPUT SETTINGS                                   ##
+######################################################
+
+firsttimestep      0
+set temperature    300
+set cons 1
+set min  0
+set pres 1
+
+#############################################################
+## SIMULATION PARAMETERS                                   ##
+#############################################################
+
+# Input
+paraTypeCharmm	    on
+parameters          ../common/par_all36_prot.prm
+parameters          ../common/par_all36_lipid.prm
+parameters          ../common/toppar_water_ions.str
+#temperature         $temperature ; # Not to be used if restart.vel is defined
+binaryoutput        yes
+
+# Force-Field Parameters
+exclude       scaled1-4
+1-4scaling          1.0
+cutoff              12.
+switching           on
+switchdist          10.5
+pairlistdist        13.5
+
+# Integrator Parameters
+timestep            2   ; # 2fs/step
+rigidBonds          all ; # needed for 2fs steps
+nonbondedFreq       1
+fullElectFrequency  2
+stepspercycle       10
+
+# for periodic boundary conditions, not to be used if restart.xsc is defined
+if {0} {
+cellBasisVector1  62.     0.    0.
+cellBasisVector2   0.    62.    0.
+cellBasisVector3   0.     0.    92.
+cellOrigin        0.0    0.0   15.0
+}
+wrapAll on
+wrapwater on
+
+# Constant Pressure Control (variable volume)
+useGroupPressure      yes ; # needed for rigid bonds
+useFlexibleCell       no  ; # no for water box, yes for membrane
+useConstantArea       no  ; # no for water box, maybe for membrane
+
+if {$pres == 1} {
+langevinPiston        on
+langevinPistonTarget  1.01325      ; # pressure in bar -> 1 atm
+langevinPistonPeriod  200.         ; # oscillation period around 100 fs
+langevinPistonDecay   100.         ; # oscillation decay time of 50 fs
+langevinPistonTemp    $temperature ; # coupled to heat bath
+} else {
+langevinPiston        off
+}
+
+# Constant Temperature Control
+langevin            on            ; # langevin dynamics
+langevinDamping     5             ; # damping coefficient of 5/ps
+langevinTemp        $temperature  ; # random noise at this level
+langevinHydrogen    no            ; # don't couple bath to hydrogens
+
+# use numbers with small integer factors: 2,3,5.
+PME                on
+PMEGridSizeX       60
+PMEGridSizeY       60
+PMEGridSizeZ       90
+
+margin 0
+
+# Output
+outputName          $outputname
+
+restartfreq         1000  ; # every 2ps
+dcdfreq             10000  ; # every 2ps
+xstFreq             1000
+outputEnergies      1000
+outputPressure      1000
+
+#############################################################
+## EXTRA PARAMETERS                                        ##
+#############################################################
+
+
+# Absolute restraints, not from colvar
+if {$cons == 1} {
+constraints on
+consref $ref_umb
+conskfile $ref_umb
+conskcol B
+selectConstraints on
+selectConstrX on
+selectConstrY on
+selectConstrZ on
+} else {
+constraints off
+}
+
+
+colvars                on
+colvarsConfig          colv-equil
+
+
+#############################################################
+## EXECUTION SCRIPT                                        ##
+#############################################################
+# Minimization
+if {$min == 1} {
+ 	minimize 2000;
+}
+run   5000000 ; # 400 ps

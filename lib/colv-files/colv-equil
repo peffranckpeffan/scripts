@@ -1,0 +1,58 @@
+colvarsTrajFrequency 1000 # output values every 100 steps
+
+
+colvar {
+  name orient-prot # needed to identify the variable
+
+  outputappliedForce yes # report also the applied force on this colvar
+
+  orientation   {
+    atoms {
+      atomsFile             atoms.pdb
+      atomsCol              O
+      atomsColValue         1.0
+     }
+
+
+   refPositionsFile      atoms.pdb
+   refPositionsCol       O
+   refPositionsColValue  1.0
+
+}
+}
+
+
+colvar {
+  name posit-prot # needed to identify the variable
+
+  outputappliedForce yes # report also the applied force on this colvar
+                        # (in addition to the current value)
+
+
+  distance {
+    group1 {
+      atomsFile             atoms.pdb
+      atomsCol              O
+      atomsColValue         1.0
+    }
+    group2 {
+	dummyatom (-0.3033020794391632, -0.2381625771522522, -2.0945606231689453) 
+    }
+  }
+}
+
+
+harmonic {
+  name posit1
+  colvars posit-prot
+  centers 0.0
+  forceConstant 2000.0
+}
+
+
+harmonic {
+  name orient1
+  colvars orient-prot
+  centers (1.0, 0.0, 0.0, 0.0)
+  forceConstant 20000.0
+}

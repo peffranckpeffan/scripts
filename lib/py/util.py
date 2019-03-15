@@ -15,7 +15,7 @@ def call_subprocess(command, directory, s):
 	subp.wait()
 
 def update_dummy(colvar_dir, colvar_name_list, center_file, selection, stage):
-	call_subprocess("env center_file='"+center_file+"' selection='"+selection+"' vmd -dispdev text -e ../scripts/lib/tcl/get-center-mass.tcl", "../"+colvar_dir, True)
+	call_subprocess("env center_file='"+center_file+"' selection='"+selection+"' vmd -dispdev text -e ../tcl/get-center-mass.tcl", "../"+colvar_dir, True)
 	
 	centerFile = open("../"+colvar_dir+"/center.tmp")
 	center=""
