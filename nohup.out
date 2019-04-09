@@ -4455,3 +4455,86 @@ file24
 Info) VMD for LINUXAMD64, version 1.9.3 (November 30, 2016)
 Info) Exiting normally.
 ERROR) Error reading Tcl input: bad file number
+conf_name: conf_run4-00; input: ; run4-00,run3-00; window: 00
+conf_name: conf_run4-01; input: ; run4-01,run3-01; window: 01
+conf_name: conf_run4-02; input: ; run4-02,run3-02; window: 02
+conf_name: conf_run4-03; input: ; run4-03,run3-03; window: 03
+conf_name: conf_run4-04; input: ; run4-04,run3-04; window: 04
+conf_name: conf_run4-05; input: ; run4-05,run3-05; window: 05
+conf_name: conf_run4-06; input: ; run4-06,run3-06; window: 06
+conf_name: conf_run4-07; input: ; run4-07,run3-07; window: 07
+conf_name: conf_run4-08; input: ; run4-08,run3-08; window: 08
+conf_name: conf_run4-09; input: ; run4-09,run3-09; window: 09
+conf_name: conf_run4-10; input: ; run4-10,run3-10; window: 10
+conf_name: conf_run4-11; input: ; run4-11,run3-11; window: 11
+conf_name: conf_run4-12; input: ; run4-12,run3-12; window: 12
+conf_name: conf_run4-13; input: ; run4-13,run3-13; window: 13
+conf_name: conf_run4-14; input: ; run4-14,run3-14; window: 14
+conf_name: conf_run4-15; input: ; run4-15,run3-15; window: 15
+conf_name: conf_run4-16; input: ; run4-16,run3-16; window: 16
+conf_name: conf_run4-17; input: ; run4-17,run3-17; window: 17
+conf_name: conf_run4-18; input: ; run4-18,run3-18; window: 18
+conf_name: conf_run4-19; input: ; run4-19,run3-19; window: 19
+conf_name: conf_run4-20; input: ; run4-20,run3-20; window: 20
+conf_name: conf_run4-21; input: ; run4-21,run3-21; window: 21
+conf_name: conf_run4-22; input: ; run4-22,run3-22; window: 22
+conf_name: conf_run4-23; input: ; run4-23,run3-23; window: 23
+conf_name: conf_run4-24; input: ; run4-24,run3-24; window: 24
+conf_name: conf_run4-25; input: ; run4-25,run3-25; window: 25
+conf_name: conf_run4-26; input: ; run4-26,run3-26; window: 26
+conf_name: conf_run4-27; input: ; run4-27,run3-27; window: 27
+conf_name: conf_run4-28; input: ; run4-28,run3-28; window: 28
+conf_name: conf_run4-29; input: ; run4-29,run3-29; window: 29
+conf_name: conf_run4-30; input: ; run4-30,run3-30; window: 30
+conf_name: conf_run4-31; input: ; run4-31,run3-31; window: 31
+conf_name: conf_run4-32; input: ; run4-32,run3-32; window: 32
+conf_name: conf_run4-33; input: ; run4-33,run3-33; window: 33
+conf_name: conf_run4-34; input: ; run4-34,run3-34; window: 34
+conf_name: conf_run4-35; input: ; run4-35,run3-35; window: 35
+conf_name: conf_run4-36; input: ; run4-36,run3-36; window: 36
+conf_name: conf_run4-37; input: ; run4-37,run3-37; window: 37
+conf_name: conf_run4-38; input: ; run4-38,run3-38; window: 38
+conf_name: conf_run4-39; input: ; run4-39,run3-39; window: 39
+conf_name: conf_run4-40; input: ; run4-40,run3-40; window: 40
+PHASE: 4
+run4 00
+run4 01
+run4 02
+run4 03
+run4 04
+run4 05
+run4 06
+run4 07
+run4 08
+run4 09
+run4 10
+run4 11
+run4 12
+run4 13
+run4 14
+run4 15
+run4 16
+run4 17
+run4 18
+run4 19
+run4 20
+run4 21
+run4 22
+run4 23
+run4 24
+run4 25
+run4 26
+run4 27
+run4 28
+run4 29
+run4 30
+run4 31
+run4 32
+run4 33
+run4 34
+run4 35
+run4 36
+run4 37
+run4 38
+run4 39
+run4 40

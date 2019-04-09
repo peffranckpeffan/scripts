@@ -154,7 +154,7 @@ elif (stage == "us"):
 		util.copyAllFilesWith('lib/colv-files','../US', '*us*')
 		util.copyAllFilesWith('lib/conf-files','../US', '*us*')
 
-	window_path  = [4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 14.5, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5, 24.0]
+	window_path  = [4.0, 4.5, 5.0, 5.25, 5.5, 6.0, 6.25, 6.5, 6.75, 7.0, 7.25, 7.5, 7.75, 8.0, 8.25, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 14.5, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5, 24.0]
 	totrange = window_path[len(window_path)-1]-window_path[0]
 	
 	util.call_subprocess("vmd -dispdev text -e ../scripts/lib/tcl/setup-smd.tcl", "../US", True)
@@ -296,9 +296,9 @@ elif (stage == "us"):
 		if (phase=='0'):
 			process=["min", "run"]
 			print("The minization of the system will be perfomed followed by the run "+phase+" of the PMF.")
-		elif(phase!='0' and not(Path('../US/u40/out_min-40.restart.coor').exists())):
-			process=["min", "run"]
-			print("The minization of the system will be perfomed followed by the run 0 of the PMF.")
+		# elif(phase!='0' and not(Path('../US/u40/out_min-40.restart.coor').exists())):
+		# 	process=["min", "run"]
+		# 	print("The minization of the system will be perfomed followed by the run 0 of the PMF.")
 		elif(phase =='1' and Path('../US/u40/out_run-40.restart.coor').exists()):
 			process=["run1"]
 		elif(phase!='0' and Path('../US/u40/out_run'+str(int(phase)-1)+'-40.restart.coor').exists()):
@@ -307,7 +307,7 @@ elif (stage == "us"):
 			print("The pointed phase of the PMF simulations does not fit with the previous runs, check yours files and try again.")
 			quit()
 		for x in range(len(process)):
-			for i in range(0,len(window_path)):
+			for i in [3, 6, 8, 10, 12, 14]:
 				window=str(i).zfill(2)
 				print(process[x] + " " + window)
 				util.call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf_"+process[x]+"-"+str(window)+" > conf_"+process[x]+"-"+str(window)+".log", "../US/u"+str(window), True)
