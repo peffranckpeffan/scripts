@@ -90,7 +90,41 @@ s=np.zeros([K],np.float64)
 r=0
 for k in range(K):
   # Read Equilibrium Value and Force Constant
-  if aur == 'u':
+  if aur == 'a':
+    with open('./'+aur+'%02.0f/colvar.in' % k, 'r') as f:
+      for line in f:
+         if 'posit2' in line:
+           for line in f:
+             cols = line.split()
+             if len(cols) != 0 and (cols[0] == "centers"):
+               req[k,r] = float(cols[1])
+             if len(cols) != 0 and (cols[0] == "forceConstant"):
+               rfc[k,r] = float(cols[1])/2
+               break
+  elif aur == 'o':
+    with open('./'+aur+'%02.0f/colvar.in' % k, 'r') as f:
+      for line in f:
+         if 'orient2' in line:
+           for line in f:
+             cols = line.split()
+             if len(cols) != 0 and (cols[0] == "centers"):
+               str = cols[1][1:-1]
+               req[k,r] = float(str)
+             if len(cols) != 0 and (cols[0] == "forceConstant"):
+               rfc[k,r] = float(cols[1])/2
+               break
+  elif aur == 'r':
+    with open('./'+aur+'%02.0f/colvar.in' % k, 'r') as f:
+      for line in f:
+         if 'rmsd2' in line:
+           for line in f:
+             cols = line.split()
+             if len(cols) != 0 and (cols[0] == "centers"):
+               req[k,r] = float(cols[1])
+             if len(cols) != 0 and (cols[0] == "forceConstant"):
+               rfc[k,r] = float(cols[1])/2
+               break
+  elif aur == 'u':
     with open('./'+aur+'%02.0f/colvar.in' % k, 'r') as f:
       for line in f:
          if 'posit3' in line:
@@ -117,8 +151,12 @@ for k in range(K):
     t += 1
     if line[0] != '#' and line[0] != '@' and t > 200:
       cols = line.split()
-      if aur == 'u':
+      if aur == 'o':
+        val[n,k,r] = math.acos(float(cols[2]))
+      elif aur == 'u':
         val[n,k,r] = float(cols[2])
+      else:
+        val[n,k,r] = float(cols[1])
       n += 1
   N[k] = n
 
@@ -134,9 +172,16 @@ for p in range(len(prg)):
   datfile = open('forces-'+aur+'.%03.0f.dat' % prg[p], 'w')
   for k in range(K):
     Nprg = nearestmax(N[k]*prg[p]/100)
-    if aur == 'u': ### Umbrella
+
+    if aur == 'o': ### Attach Orientational
+      x[k] = rfc[k,0]/fcmax[0]
+      u[k,0:Nprg] = np.sum(fcmax[0:R]*((val[0:Nprg,k,0:R])**2), axis=1)
+    elif aur == 'u': ### Umbrella
       x[k] = req[k,0]
       u[k,0:Nprg] = (2.0*rfc[k,0]*(val[0:Nprg,k,0]-req[k,0]))
+    else: ### Attach Restraints
+      x[k] = rfc[k,0]/fcmax[0]
+      u[k,0:Nprg] = np.sum(fcmax[0:R]*((val[0:Nprg,k,0:R]-req[k])**2), axis=1)
 
  
     m[k] = np.mean(u[k,0:Nprg])
@@ -150,7 +195,6 @@ for p in range(len(prg)):
   xspl = np.zeros( [0], np.float64 ) # array for x dimension spline points
   idx = np.zeros( [K], np.int32 ) # index location of the k window in the spline array
   idx[0] = 0
-  print x
   for k in range(1,K):
     xspl = np.append(xspl,np.linspace(x[k-1],x[k],num=100,endpoint=False)) # 100 spline poins between windows
     idx[k]=len(xspl)
@@ -162,10 +206,11 @@ for p in range(len(prg)):
       y[k]=np.random.normal(m[k],s[k],1)
     yspl = interpolate(x,y,xspl)
     for k in range(K):
-      intg[k,i]=-1*np.trapz(yspl[0:idx[k]],xspl[0:idx[k]])
+      if aur == 'a' or aur == 'o' or aur == 'r': ### Attach/Release
+        intg[k,i] = np.trapz(yspl[0:idx[k]],xspl[0:idx[k]]) # not a negative because it's work by the system, not external.  test with w = -fd
+      else: # Umbrella Translate
+        intg[k,i]=-1*np.trapz(yspl[0:idx[k]],xspl[0:idx[k]])
   
-  #print intg  
-  #print len(intg) 
   ### Write Integration
   datfile = open('int-'+aur+'.%03.0f.dat' % prg[p], 'w')
   for k in range(K):
