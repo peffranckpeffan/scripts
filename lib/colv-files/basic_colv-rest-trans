@@ -49,13 +49,13 @@ colvar {
     atoms {
       atomsFile             ../atoms.pdb
       atomsCol              B
-      atomsColValue         3.0
+      atomsColValue         1.0
      }
 
 
    refPositionsFile      ../atoms.pdb
    refPositionsCol       B
-   refPositionsColValue  3.0
+   refPositionsColValue  1.0
 
 }
 }
@@ -70,13 +70,13 @@ colvar {
     atoms {
       atomsFile             ../atoms.pdb
       atomsCol              B
-      atomsColValue         4.0
+      atomsColValue         3.0
      }
 
 
    refPositionsFile      ../atoms.pdb
    refPositionsCol       B
-   refPositionsColValue  4.0
+   refPositionsColValue  3.0
 
 }
 }
