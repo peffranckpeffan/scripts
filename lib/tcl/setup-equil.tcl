@@ -1,4 +1,4 @@
-mol load psf ../common/solvate.psf pdb ../common/system.pdb
+mol load psf ../common/system.psf pdb ../common/system.pdb
 set all [atomselect top all]
 $all set occupancy 0
 $all set beta 0

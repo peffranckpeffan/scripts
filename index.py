@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import sys
 import subprocess
 import os
@@ -123,7 +125,7 @@ elif (stage == "equil"):
 	util.call_subprocess("vmd -dispdev text -e ../scripts/lib/tcl/setup-equil.tcl", "../equil", True)
 
 	#Update the dummy atom
-	util.update_dummy('equil', ['colv-equil'], "../common/solvate.pdb", "segname A and backbone", stage)
+	util.update_dummy('equil', ['colv-equil'], "../common/system.pdb", "segname A and backbone", stage)
 
 	if (ifExec==1):
 		file_eq=Path('../equil/out_eq.dcd')
@@ -159,8 +161,8 @@ elif (stage == "us"):
 	
 	util.call_subprocess("vmd -dispdev text -e ../scripts/lib/tcl/setup-smd.tcl", "../US", True)
 
-	util.update_dummy('scripts/lib/colv-files/', ['basic_colv-us'], "../../../common/solvate.pdb", "segname A and backbone", 'equil')
-	util.update_dummy('scripts/lib/colv-files/', ['basic_colv-us'], "../../../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
+	util.update_dummy('US', ['basic_colv-us'], "../common/system.pdb", "segname A and backbone", 'equil')
+	util.update_dummy('US', ['basic_colv-us'], "../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
 
 	if(not(Path('../US/u40/out_min-40.restart.coor').exists())):
 		#PREPARING MINIMIZATION
@@ -193,8 +195,8 @@ elif (stage == "us"):
 			conf_file.write( "#binvelocities   $inputname.restart.vel" + "\n" )
 			conf_file.write( "extendedSystem  ../../SMD/out_smd.restart.xsc" + "\n" )
 			conf_file.write( "set ref_umb     ../refumb0.pdb" + "\n" )
-			conf_file.write( "coordinates     ../../common/solvate.pdb" + "\n" )
-			conf_file.write( "structure       ../../common/solvate.psf" + "\n" )
+			conf_file.write( "coordinates     ../../common/system.pdb" + "\n" )
+			conf_file.write( "structure       ../../common/system.psf" + "\n" )
 			conf_file.write( "" )
 			conf_file.write( "######################################################" + "\n" )
 			conf_file.write( "## INPUT SETTINGS                                   ##" + "\n" )
@@ -270,8 +272,8 @@ elif (stage == "us"):
 		conf_file.write( "#binvelocities   $inputname.restart.vel" + "\n" )
 		conf_file.write( "extendedSystem  ../../SMD/out_smd.restart.xsc" + "\n" )
 		conf_file.write( "set ref_umb     ../refumb0.pdb" + "\n" )
-		conf_file.write( "coordinates     ../../common/solvate.pdb" + "\n" )
-		conf_file.write( "structure       ../../common/solvate.psf" + "\n" )
+		conf_file.write( "coordinates     ../../common/system.pdb" + "\n" )
+		conf_file.write( "structure       ../../common/system.psf" + "\n" )
 		conf_file.write( "" )
 		conf_file.write( "######################################################" + "\n" )
 		conf_file.write( "## INPUT SETTINGS                                   ##" + "\n" )
@@ -325,8 +327,8 @@ elif (stage == 'restraints'):
 	util.call_subprocess("vmd -dispdev text -e ../scripts/lib/tcl/setup-smd.tcl", "../restraints", True)
 
 	basic_colv_list=['basic_colv-rest-bulk', 'basic_colv-rest-lrmsd', 'basic_colv-rest-orient', 'basic_colv-rest-prmsd', 'basic_colv-rest-trans']
-	util.update_dummy('scripts/lib/colv-files/', basic_colv_list, "../../../common/solvate.pdb", "segname A and backbone", 'equil')
-	util.update_dummy('scripts/lib/colv-files/', basic_colv_list, "../../../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
+	util.update_dummy('restraints', basic_colv_list, "../common/system.pdb", "segname A and backbone", 'equil')
+	util.update_dummy('restraints', basic_colv_list, "../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
 
 	multipliers=[0.00, 0.40, 0.80, 1.60, 2.40, 4.00, 5.50, 8.65, 11.80, 18.10, 24.40, 37.00, 49.60, 74.80, 100.00]
 	j="0"
@@ -365,8 +367,8 @@ elif (stage == 'restraints'):
 				output="rest"+phase+"-" + str(nr)	
 
 
-			if phase == "0":
-				phase = ""
+			# if phase == "0":
+			# 	phase = ""
 
 			conf_name="conf_" + output
 			colv_inp="colv-" + str(nr)
@@ -389,8 +391,8 @@ elif (stage == 'restraints'):
 			conf_file.write( "binvelocities   $inputname.restart.vel" + "\n" )
 			conf_file.write( "extendedSystem  $inputname.restart.xsc" + "\n" )
 			conf_file.write( "set ref_umb     ../../SMD/refumb0.pdb" + "\n" )
-			conf_file.write( "coordinates     ../../common/solvate.pdb" + "\n" )
-			conf_file.write( "structure       ../../common/solvate.psf" + "\n" )
+			conf_file.write( "coordinates     ../../common/system.pdb" + "\n" )
+			conf_file.write( "structure       ../../common/system.psf" + "\n" )
 			conf_file.write( "" )
 			conf_file.write( "######################################################" + "\n" )
 			conf_file.write( "## INPUT SETTINGS                                   ##" + "\n" )

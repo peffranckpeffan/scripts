@@ -48,13 +48,13 @@ colvar {
   rmsd   {
     atoms {
       atomsFile             ../atoms.pdb
-      atomsCol              B
+      atomsCol              O
       atomsColValue         1.0
      }
 
 
    refPositionsFile      ../atoms.pdb
-   refPositionsCol       B
+   refPositionsCol       O
    refPositionsColValue  1.0
 
 }

@@ -11,8 +11,8 @@ binvelocities    $inputname.restart.vel
 extendedSystem   $inputname.restart.xsc
 }
 set ref_umb      refumb0.pdb
-structure        ../common/solvate.psf
-coordinates      ../common/solvate.pdb
+structure        ../common/system.psf
+coordinates      ../common/system.pdb
 
 ######################################################
 ## INPUT SETTINGS                                   ##

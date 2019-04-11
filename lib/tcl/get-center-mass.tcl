@@ -1,4 +1,4 @@
-mol new "../../../common/system.psf" 
+mol new "../common/system.psf" 
 mol addfile $env(center_file) molid 0 waitfor all
 #set num_frames [molinfo top get numframes]
 # set all [atomselect top $env(selection) frame $num_frames]
