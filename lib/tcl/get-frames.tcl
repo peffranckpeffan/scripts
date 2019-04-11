@@ -1,4 +1,4 @@
-mol new ../common/solvate.psf 
+mol new ../common/system.psf 
 mol addfile ../equil/out_eq2.restart.coor molid 0 waitfor all
 mol addfile ../SMD/out_smd.dcd molid 0 waitfor all
 

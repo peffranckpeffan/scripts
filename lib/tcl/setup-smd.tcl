@@ -1,4 +1,4 @@
-mol new ../common/solvate.psf 
+mol new ../common/system.psf 
 mol addfile ../equil/out_eq2.restart.coor molid 0
 
 set all [atomselect top all]

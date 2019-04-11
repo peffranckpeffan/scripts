@@ -296,9 +296,9 @@ elif (stage == "us"):
 		if (phase=='0'):
 			process=["min", "run"]
 			print("The minization of the system will be perfomed followed by the run "+phase+" of the PMF.")
-		# elif(phase!='0' and not(Path('../US/u40/out_min-40.restart.coor').exists())):
-		# 	process=["min", "run"]
-		# 	print("The minization of the system will be perfomed followed by the run 0 of the PMF.")
+		elif(phase!='0' and not(Path('../US/u40/out_min-40.restart.coor').exists())):
+			process=["min", "run"]
+			print("The minization of the system will be perfomed followed by the run 0 of the PMF.")
 		elif(phase =='1' and Path('../US/u40/out_run-40.restart.coor').exists()):
 			process=["run1"]
 		elif(phase!='0' and Path('../US/u40/out_run'+str(int(phase)-1)+'-40.restart.coor').exists()):
@@ -307,7 +307,7 @@ elif (stage == "us"):
 			print("The pointed phase of the PMF simulations does not fit with the previous runs, check yours files and try again.")
 			quit()
 		for x in range(len(process)):
-			for i in [3, 6, 8, 10, 12, 14]:
+			for i in range(0,len(window_path)):
 				window=str(i).zfill(2)
 				print(process[x] + " " + window)
 				util.call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf_"+process[x]+"-"+str(window)+" > conf_"+process[x]+"-"+str(window)+".log", "../US/u"+str(window), True)
@@ -436,8 +436,8 @@ elif (stage == 'restraints'):
 		if phase == "0":
 			phase = ""
 
-		#folders=["t", "o", "r", "p", "b"]
-		folders=["t", "o", "r"]
+		folders=["b", "o", "p", "t", "r"]
+		#folders=["t", "o", "r"]
 		if res_folder not in folders and res_folder != "all":
 			print("Specified folder does not exist.")
 		else:
