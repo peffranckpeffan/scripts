@@ -66,3 +66,17 @@ def copyAllFilesWith(source_dir, dest_dir, expression):
 	for file in files:
 		if (os.path.isfile(file)):
 			shutil.copy2(file, dest_dir)
+
+def intSimps(a, b, n, step, f):
+	h = (b - a) / n
+	s = 0
+	i = 0
+	s = f(a) + f(b)
+
+	for i in np.arange(1,n,step):
+		s+= 4*f(a + i*h)
+	for i in np.arange(2,n,step):
+		s+= 2*f(a + i*h)
+	
+	s = (s*h)/3
+	return s
