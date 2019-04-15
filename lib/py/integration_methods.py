@@ -7,7 +7,7 @@ import numpy as np
 import math
 import os, errno, glob, shutil, json
 from scipy.interpolate import interp1d
-import matplotlib.pyplot as plt
+#	import matplotlib.pyplot as plt
 from lib.py import util
 
 
@@ -19,10 +19,6 @@ def thermodynamic_integration(fold_analyse):
 		if os.path.isdir(dir_analyse+folder) and fold_analyse in folder and folder.split(fold_analyse)[1].isdigit():
 					num_win = num_win + 1
 
-	array_len = len(np.genfromtxt(dir_analyse+fold_analyse+'00/restraints.dat', usecols=(2)).transpose())
-
-	simul_data = np.zeros([num_win, 2, array_len], np.float64)
-	potentials = np.zeros([num_win, array_len], np.float64)
 	constants = np.zeros([2, num_win], np.float64)
 	centers = np.zeros([2, num_win], np.float64)
 	mean_pot = np.zeros([1, num_win], np.float64)
@@ -48,6 +44,9 @@ def thermodynamic_integration(fold_analyse):
 
 	line_ref = 0
 	for window in range(num_win):
+		array_len = len(np.genfromtxt(dir_analyse+fold_analyse+str(window).zfill(2)+'/restraints.dat', usecols=(2)).transpose())
+		potentials = np.zeros([num_win, array_len], np.float64)
+		simul_data = np.zeros([num_win, 2, array_len], np.float64)
 		for i in range(len(rest_info[1])):
 			simul_data[window, i, 0:array_len] = np.genfromtxt(dir_analyse+fold_analyse+str(window).zfill(2)+'/restraints.dat', usecols=(rest_info[1][i])).transpose()
 

@@ -470,68 +470,69 @@ elif stage=="analysis":
 
 	dir_analyse = '../'+stageAnalysis+'/'
 	windows_analyse = []
-	# for prefix_folder in folders:
-	# 	folder_to_count = prefix_folder
+	for prefix_folder in folders:
+		folder_to_count = prefix_folder
 
-	# 	if (prefix_folder == 'l'):
-	# 		folder_to_count = 'b'
+		if (prefix_folder == 'l'):
+			folder_to_count = 'b'
 
-	# 	for window in os.listdir(dir_analyse):
+		for window in os.listdir(dir_analyse):
 			
-	# 		if os.path.isdir(dir_analyse+window) and folder_to_count in window:
-	# 			windows_analyse.append(window)
+			if os.path.isdir(dir_analyse+window) and folder_to_count in window:
+				windows_analyse.append(window)
 
-	# 	windows_analyse = sorted(windows_analyse, key=lambda x: float(x[1:]))
-	# 	for index, window in enumerate(windows_analyse):
+		windows_analyse = sorted(windows_analyse, key=lambda x: float(x[1:]))
+		for index, window in enumerate(windows_analyse):
 			
-	# 		folder_from = window
-	#  		folder_for = prefix_folder + str(index).zfill(2)
+			folder_from = window
+	 		folder_for = prefix_folder + str(index).zfill(2)
 
-	# 		util.createDir("../analysis/"+folder_for)
-	# 		util.copyfile("../"+stageAnalysis+"/"+folder_from+"/out_"+prefix+"-"+window.split(folder_to_count)[1]+".colvars.traj", "../analysis/"+folder_for+"/restraints.dat")
-	# 		util.copyfile("../"+stageAnalysis+"/"+folder_from+"/colv-"+window.split(folder_to_count)[1], "../analysis/"+folder_for+"/colvar.in")
+			util.createDir("../analysis/"+folder_for)
+			util.copyfile("../"+stageAnalysis+"/"+folder_from+"/out_"+prefix+"-"+window.split(folder_to_count)[1]+".colvars.traj", "../analysis/"+folder_for+"/restraints.dat")
+			util.copyfile("../"+stageAnalysis+"/"+folder_from+"/colv-"+window.split(folder_to_count)[1], "../analysis/"+folder_for+"/colvar.in")
 
-	# 	print("Analyzing folder " + prefix_folder)
-	# 	util.call_subprocess("python ../scripts/FE-MBAR.py "+prefix_folder+" 298 "+ phase, "../analysis", True)
-	# 	util.call_subprocess("python ../scripts/FE-MBAR-ns.py "+prefix_folder+" 298 "+ phase, "../analysis", True)
+		print("Analyzing folder " + prefix_folder)
+		util.call_subprocess("python ../scripts/FE-MBAR.py "+prefix_folder+" 298 "+ phase, "../analysis", True)
+		util.call_subprocess("python ../scripts/FE-MBAR-ns.py "+prefix_folder+" 298 "+ phase, "../analysis", True)
 
-	# 	del windows_analyse[:]
+		del windows_analyse[:]
 
 	energies = []
 	thermo_intg = []
 	fileType = ['allsp', 'subs']
 	total = []
-	
-	for folder in ['b', 'l', 'o', 'p', 'r', 't', 'u']:
-		vals = []
-		for y in range(1,3):#valor absoluto posicao 1 e seu erro 2
-			vals.append(util.getEnergy(fileType[y-1]+"-"+folder+".100.dat", y))
-		vals.append(im.thermodynamic_integration(folder))
-		energies.append(vals)
+	if(Path("../analysis/"+fileType[0]+"-t.100.dat").exists() and Path("../analysis/"+fileType[0]+"-u.100.dat").exists()):
+		for folder in ['b', 'l', 'o', 'p', 'r', 't', 'u']:
+			vals = []
+			for y in range(1,3):#valor absoluto posicao 1 e seu erro 2
+				vals.append(util.getEnergy(fileType[y-1]+"-"+folder+".100.dat", y))
+			vals.append(im.thermodynamic_integration(folder))
+			energies.append(vals)
 
-	energies.insert(4, [6.72, .0, 6.72])
-	energies.insert(6, [5.57, .0, 5.57])
+		energies.insert(4, [6.72, .0, 6.72])
+		energies.insert(6, [5.27, .0, 5.27])
 
-	total_mbar = energies[0][0] - energies[3][0] + energies[1][0] - energies[5][0] + energies[4][0]  - energies[2][0] + energies[6][0]  - energies[7][0] - energies[8][0]
-	total_ti = energies[0][2] - energies[3][2] + energies[1][2] - energies[5][2] + energies[4][2]  - energies[2][2] + energies[6][2]  - energies[7][2] - energies[8][2]
-	
-	energies.append([total_mbar, .0, total_ti])
+		total_mbar = energies[0][0] - energies[3][0] + energies[1][0] - energies[5][0] + energies[4][0]  - energies[2][0] + energies[6][0]  - energies[7][0] - energies[8][0]
+		total_ti = energies[0][2] - energies[3][2] + energies[1][2] - energies[5][2] + energies[4][2]  - energies[2][2] + energies[6][2]  - energies[7][2] - energies[8][2]
+		
+		energies.append([total_mbar, .0, total_ti])
 
-	columns = np.zeros([10,15])
+		
 
-	# teste = ['Protein Conformational Bulk', 'Protein Conformational Site', 'Ligand Conformational Bulk', 'Ligand Conformational Site', 'Ligand Orientational Bulk', 'Ligand Orientational Site', 'Ligand Translational Bulk', 'Ligand Translational Site', 'PMF', 'Total']
+		# teste = ['Protein Conformational Bulk', 'Protein Conformational Site', 'Ligand Conformational Bulk', 'Ligand Conformational Site', 'Ligand Orientational Bulk', 'Ligand Orientational Site', 'Ligand Translational Bulk', 'Ligand Translational Site', 'PMF', 'Total']
 
-	# columns[0:10,0] = teste[0:10]
+		# columns[0:10,0] = teste[0:10]
+		if not(Path('../analysis/RESULT.out').exists()):
+			columns = np.zeros([10,15])
+			np.savetxt('../analysis/RESULT.out', (columns[0:10,0:15]), delimiter='\t', fmt='%10.3f ')
 
-	np.savetxt('test.out', (columns[0:10,0:15]), delimiter='\t', fmt='%10.3f ')
+		data = np.genfromtxt('../analysis/RESULT.out', usecols=(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14))
+		
+		if phase == '':
+			phase = '0'
 
-	data = np.genfromtxt('test.out', usecols=(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14))
-	
-	if phase == '':
-		phase = '0'
+		x = int(phase)
+		for i in range(0,10):
+			data[i][x*3:(x+1)*3] = energies[i][0:3]
 
-	x = int(phase)
-	for i in range(0,10):
-		data[i][x*3:(x+1)*3] = energies[i][0:3]
-
-	np.savetxt('test.out', (data[0:10,0:15]), delimiter='\t', fmt='%10.3f ')
+		np.savetxt('../analysis/RESULT.out', (data[0:10,0:15]), delimiter='\t', fmt='%10.3f ')
