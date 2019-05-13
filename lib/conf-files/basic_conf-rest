@@ -4,9 +4,9 @@
 
 # Input
 paraTypeCharmm	    on
-parameters          ../../common/par_all36_prot.prm
-parameters          ../../common/par_all36_lipid.prm
-parameters          ../../common/toppar_water_ions.str
+parameters          ./par_all36_prot.prm
+parameters          ./par_all36_lipid.prm
+parameters          ./toppar_water_ions.str
 binaryoutput        yes
 
 # Force-Field Parameters

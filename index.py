@@ -110,6 +110,8 @@ else:
 
 
 if (stage == "init"):
+	createDir("../common")
+	copyAllFilesWith('lib/param','../common', '*')
 	createDir("../equil")
 	copyAllFilesWith('../common','../equil', '*eq*')
 	createDir("../restraints")
@@ -127,6 +129,8 @@ elif (stage == "equil"):
 
 	#Update the dummy atom
 	util.update_dummy('equil', ['colv-equil'], "../common/system.pdb", "segname A and backbone", stage)
+
+	copyAllFilesWith('../common','../equil', '*')
 
 	if (ifExec==1):
 		file_eq=Path('../equil/out_eq.dcd')
@@ -147,6 +151,11 @@ elif (stage == "smd"):
 
 	#Update dummyatom
 	util.update_dummy('SMD', ['colv-smd'], "../equil/out_eq2.restart.coor", "segname B and backbone", stage)
+
+	util.update_dummy('SMD', ['colv-smd'], "../equil/out_eq2.restart.coor", "segname A and backbone", stage)
+
+	copyAllFilesWith('../common','../SMD', '*')
+	copyAllFilesWith('../equil','../SMD', '*eq2_restart.coor*')
 
 	if (ifExec==1 and Path('../equil/out_eq2.dcd').exists()):
 		util.call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf-smd > conf-smd.log", "../SMD", True)
@@ -391,9 +400,9 @@ elif (stage == 'restraints'):
 			conf_file.write( "bincoordinates  $inputname.restart.coor" + "\n" )
 			conf_file.write( "binvelocities   $inputname.restart.vel" + "\n" )
 			conf_file.write( "extendedSystem  $inputname.restart.xsc" + "\n" )
-			conf_file.write( "set ref_umb     ../../SMD/refumb0.pdb" + "\n" )
-			conf_file.write( "coordinates     ../../common/system.pdb" + "\n" )
-			conf_file.write( "structure       ../../common/system.psf" + "\n" )
+			conf_file.write( "set ref_umb     ./refumb0.pdb" + "\n" )
+			conf_file.write( "coordinates     ./system.pdb" + "\n" )
+			conf_file.write( "structure       ./system.psf" + "\n" )
 			conf_file.write( "" )
 			conf_file.write( "######################################################" + "\n" )
 			conf_file.write( "## INPUT SETTINGS                                   ##" + "\n" )

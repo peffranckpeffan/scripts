@@ -11,8 +11,8 @@ binvelocities    $inputname.restart.vel
 extendedSystem   $inputname.restart.xsc
 }
 set ref_umb      refumb0.pdb
-structure        ../common/system.psf
-coordinates      ../common/system.pdb
+structure        ./system.psf
+coordinates      ./system.pdb
 
 ######################################################
 ## INPUT SETTINGS                                   ##
@@ -30,9 +30,9 @@ set pres 1
 
 # Input
 paraTypeCharmm	    on
-parameters          ../common/par_all36_prot.prm
-parameters          ../common/par_all36_lipid.prm
-parameters          ../common/toppar_water_ions.str
+parameters          ./par_all36_prot.prm
+parameters          ./par_all36_lipid.prm
+parameters          ./toppar_water_ions.str
 #temperature         $temperature ; # Not to be used if restart.vel is defined
 binaryoutput        yes
 
@@ -94,7 +94,7 @@ margin 0
 outputName          $outputname
 
 restartfreq         1000  ; # every 2ps
-dcdfreq             1000  ; # every 2ps
+dcdfreq             10000  ; # every 2ps
 xstFreq             1000
 outputEnergies      1000
 outputPressure      1000
