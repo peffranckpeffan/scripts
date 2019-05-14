@@ -8,13 +8,13 @@ colvar {
 
   orientation   {
     atoms {
-      atomsFile             ../atoms.pdb
+      atomsFile             atoms.pdb
       atomsCol              O
       atomsColValue         1.0
      }
 
 
-   refPositionsFile      ../atoms.pdb
+   refPositionsFile      atoms.pdb
    refPositionsCol       O
    refPositionsColValue  1.0
 
@@ -29,7 +29,7 @@ colvar {
 
   distance {
     group1 {
-      atomsFile             ../atoms.pdb
+      atomsFile             atoms.pdb
       atomsCol              O
       atomsColValue         1.0
     }
@@ -47,13 +47,13 @@ colvar {
 
   rmsd   {
     atoms {
-      atomsFile             ../atoms.pdb
+      atomsFile             atoms.pdb
       atomsCol              O
       atomsColValue         1.0
      }
 
 
-   refPositionsFile      ../atoms.pdb
+   refPositionsFile      atoms.pdb
    refPositionsCol       O
    refPositionsColValue  1.0
 
@@ -68,13 +68,13 @@ colvar {
 
   rmsd   {
     atoms {
-      atomsFile             ../atoms.pdb
+      atomsFile             atoms.pdb
       atomsCol              B
       atomsColValue         3.0
      }
 
 
-   refPositionsFile      ../atoms.pdb
+   refPositionsFile      atoms.pdb
    refPositionsCol       B
    refPositionsColValue  3.0
 
@@ -88,13 +88,13 @@ colvar {
 
   orientation   {
     atoms {
-      atomsFile             ../atoms.pdb
+      atomsFile             atoms.pdb
       atomsCol              O
       atomsColValue         2.0
      }
 
 
-   refPositionsFile      ../atoms.pdb
+   refPositionsFile      atoms.pdb
    refPositionsCol       O
    refPositionsColValue  2.0
 
@@ -109,7 +109,7 @@ colvar {
 
   distanceXY {
     main     {
-      atomsFile             ../atoms.pdb
+      atomsFile             atoms.pdb
       atomsCol              O
       atomsColValue         2.0
     }
@@ -128,7 +128,7 @@ colvar {
 
   distanceZ {
     main     {
-      atomsFile             ../atoms.pdb
+      atomsFile             atoms.pdb
       atomsCol              O
       atomsColValue         2.0
     }

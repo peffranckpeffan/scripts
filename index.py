@@ -269,6 +269,11 @@ elif (stage == "us"):
 		if(not(Path('../US/u'+str(window)+'/out_smd-'+str(window)+'.restart.coor').exists())):
 			shutil.move('../US/out_smd-'+str(window)+'.restart.coor', "../US/u"+str(window))
 
+		copyAllFilesWith('../common','../restraints/'+str(window), '*')
+		copyAllFilesWith('../SMD/out_smd.restart.xsc"','../restraints/'+str(window), '*')
+		copyAllFilesWith('../restraints/refumb0.pdb"','../restraints/'+str(window), '*')
+		copyAllFilesWith('../restraints/atoms.pdb"','../restraints/'+str(window), '*')
+
 		conf_file = open("../US/u"+str(window)+"/"+conf_name, 'w')
 		conf_file.write( "######################################################" + "\n" )
 		conf_file.write( "# INPUT AND OUTPUT FILES                           ##" + "\n" )
@@ -280,10 +285,10 @@ elif (stage == "us"):
 		conf_file.write( "set outputname  ./out_$input" + "\n" )
 		conf_file.write( "bincoordinates  $inputname.restart.coor" + "\n" )
 		conf_file.write( "#binvelocities   $inputname.restart.vel" + "\n" )
-		conf_file.write( "extendedSystem  ../../SMD/out_smd.restart.xsc" + "\n" )
-		conf_file.write( "set ref_umb     ../refumb0.pdb" + "\n" )
-		conf_file.write( "coordinates     ../../common/system.pdb" + "\n" )
-		conf_file.write( "structure       ../../common/system.psf" + "\n" )
+		conf_file.write( "extendedSystem  ./SMD/out_smd.restart.xsc" + "\n" )
+		conf_file.write( "set ref_umb     ./refumb0.pdb" + "\n" )
+		conf_file.write( "coordinates     ./system.pdb" + "\n" )
+		conf_file.write( "structure       ./system.psf" + "\n" )
 		conf_file.write( "" )
 		conf_file.write( "######################################################" + "\n" )
 		conf_file.write( "## INPUT SETTINGS                                   ##" + "\n" )
@@ -386,7 +391,7 @@ elif (stage == 'restraints'):
 			if not(Path("../restraints/"+restraints[count_rest]["folder"] + str(nr)).exists()):
 				util.createDir("../restraints/"+restraints[count_rest]["folder"] + str(nr))
 
-			print("conf_name: " + conf_name + "; force_const: " + str(restraints[count_rest]["properties"][0]['forceConstant']) +"; " + restraints[count_rest]["folder"]  + str(nr))
+			print("conf_name: " + conf_name + "; force_const: " + str(restraints[count_rest]["properties"][0]['forceConstant']*ct/100) +"; " + restraints[count_rest]["folder"]  + str(nr))
 
 			conf_file = open("../restraints/"+restraints[count_rest]["folder"]+str(nr)+"/"+conf_name, 'w')
 			conf_file.write( "######################################################" + "\n" )
