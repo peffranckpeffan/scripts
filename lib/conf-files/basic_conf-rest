@@ -67,7 +67,7 @@ margin 0
 outputName          $outputname
 
 restartfreq         1000  ; # every 2ps
-dcdfreq             1000  ; # every 2ps
+dcdfreq             10000  ; # every 2ps
 xstFreq             1000
 outputEnergies      1000
 outputPressure      1000

@@ -130,7 +130,7 @@ elif (stage == "equil"):
 	#Update the dummy atom
 	util.update_dummy('equil', ['colv-equil'], "../common/system.pdb", "segname A and backbone", stage)
 
-	copyAllFilesWith('../common','../equil', '*')
+	util.copyAllFilesWith('../common','../equil', '*')
 
 	if (ifExec==1):
 		file_eq=Path('../equil/out_eq.dcd')
@@ -154,8 +154,8 @@ elif (stage == "smd"):
 
 	util.update_dummy('SMD', ['colv-smd'], "../equil/out_eq2.restart.coor", "segname A and backbone", stage)
 
-	copyAllFilesWith('../common','../SMD', '*')
-	copyAllFilesWith('../equil','../SMD', '*eq2_restart.coor*')
+	util.copyAllFilesWith('../common','../SMD', '*')
+	util.copyAllFilesWith('../equil','../SMD', '*eq2_restart.coor*')
 
 	if (ifExec==1 and Path('../equil/out_eq2.dcd').exists()):
 		util.call_subprocess("namd2 +p6 +setcpuaffinity +devices 0 +pemap 0-5  conf-smd > conf-smd.log", "../SMD", True)
@@ -174,7 +174,7 @@ elif (stage == "us"):
 	util.update_dummy('US', ['basic_colv-us'], "../common/system.pdb", "segname A and backbone", 'equil')
 	util.update_dummy('US', ['basic_colv-us'], "../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
 
-	if(not(Path('../US/u40/out_min-40.restart.coor').exists())):
+	if(not(Path('../US/u46/out_min-46.restart.coor').exists())):
 		#PREPARING MINIMIZATION
 		steps=500000
 		#initial window in posit_wind + space_bet_wind (3.5)
@@ -203,10 +203,10 @@ elif (stage == "us"):
 			conf_file.write( "set outputname  ./out_$input" + "\n" )
 			conf_file.write( "bincoordinates  $inputname.restart.coor" + "\n" )
 			conf_file.write( "#binvelocities   $inputname.restart.vel" + "\n" )
-			conf_file.write( "extendedSystem  ../../SMD/out_smd.restart.xsc" + "\n" )
-			conf_file.write( "set ref_umb     ../refumb0.pdb" + "\n" )
-			conf_file.write( "coordinates     ../../common/system.pdb" + "\n" )
-			conf_file.write( "structure       ../../common/system.psf" + "\n" )
+			conf_file.write( "extendedSystem  ./SMD/out_smd.restart.xsc" + "\n" )
+			conf_file.write( "set ref_umb     ./refumb0.pdb" + "\n" )
+			conf_file.write( "coordinates     ./system.pdb" + "\n" )
+			conf_file.write( "structure       ./common/system.psf" + "\n" )
 			conf_file.write( "" )
 			conf_file.write( "######################################################" + "\n" )
 			conf_file.write( "## INPUT SETTINGS                                   ##" + "\n" )
@@ -237,6 +237,11 @@ elif (stage == "us"):
 			tcl_file.write( "" )
 			tcl_file.close();
 			i=i+1
+
+			util.copyAllFilesWith('../common','../US/'+str(window), '*')
+			util.copyAllFilesWith('../SMD/out_smd.restart.xsc"','../US/'+str(window), '*')
+			util.copyAllFilesWith('../US/refumb0.pdb"','../US/'+str(window), '*')
+			util.copyAllFilesWith('../US/atoms.pdb"','../US/'+str(window), '*')
 
 	if(not(Path('../US/u40/out_smd-40.restart.coor').exists())):
 		util.call_subprocess("env totrange='"+str(totrange)+"' window_path='"+str(window_path).replace(' ', '').replace('[','').replace(']', '')+"' vmd -dispdev text -e ../scripts/lib/tcl/get-frames.tcl", "../US", True)
@@ -269,11 +274,6 @@ elif (stage == "us"):
 		if(not(Path('../US/u'+str(window)+'/out_smd-'+str(window)+'.restart.coor').exists())):
 			shutil.move('../US/out_smd-'+str(window)+'.restart.coor', "../US/u"+str(window))
 
-		copyAllFilesWith('../common','../restraints/'+str(window), '*')
-		copyAllFilesWith('../SMD/out_smd.restart.xsc"','../restraints/'+str(window), '*')
-		copyAllFilesWith('../restraints/refumb0.pdb"','../restraints/'+str(window), '*')
-		copyAllFilesWith('../restraints/atoms.pdb"','../restraints/'+str(window), '*')
-
 		conf_file = open("../US/u"+str(window)+"/"+conf_name, 'w')
 		conf_file.write( "######################################################" + "\n" )
 		conf_file.write( "# INPUT AND OUTPUT FILES                           ##" + "\n" )
@@ -284,8 +284,8 @@ elif (stage == "us"):
 		conf_file.write( "set inputname   ./out_$input_pr" + "\n" )
 		conf_file.write( "set outputname  ./out_$input" + "\n" )
 		conf_file.write( "bincoordinates  $inputname.restart.coor" + "\n" )
-		conf_file.write( "#binvelocities   $inputname.restart.vel" + "\n" )
-		conf_file.write( "extendedSystem  ./SMD/out_smd.restart.xsc" + "\n" )
+		conf_file.write( "binvelocities   $inputname.restart.vel" + "\n" )
+		conf_file.write( "extendedSystem  .$inputname.restart.xsc" + "\n" )
 		conf_file.write( "set ref_umb     ./refumb0.pdb" + "\n" )
 		conf_file.write( "coordinates     ./system.pdb" + "\n" )
 		conf_file.write( "structure       ./system.psf" + "\n" )
@@ -429,6 +429,7 @@ elif (stage == 'restraints'):
 			colv_file = open("../restraints/"+restraints[count_rest]["folder"]+str(nr)+"/"+colv_inp, "w")
 			util.copyFileLines("lib/colv-files/basic_colv-rest-" + restraints[count_rest]["type"], colv_file)
 			counter_rest2=0
+
 			
 			while len(restraints[count_rest]["properties"]) > counter_rest2:
 				colv_file.write( "" )
@@ -444,9 +445,16 @@ elif (stage == 'restraints'):
 
 			colv_file.close();
 
-
+			util.copyAllFilesWith('../common','../restraints/'+str(window), '*')
+			util.copyAllFilesWith('../SMD/out_smd.restart.xsc"','../restraints/'+str(window), '*')
+			util.copyAllFilesWith('../restraints/refumb0.pdb"','../restraints/'+str(window), '*')
+			util.copyAllFilesWith('../restraints/atoms.pdb"','../restraints/'+str(window), '*')
+			
 			counter=counter+1
 		count_rest=count_rest+1
+
+	for file in basic_colv_list:
+		os.remove("../restraints/"+file)
 
 	if ifExec==1:
 
@@ -523,7 +531,7 @@ elif stage=="analysis":
 			vals.append(im.thermodynamic_integration(folder))
 			energies.append(vals)
 
-		energies.insert(4, [6.72, .0, 6.72])
+		energies.insert(4, [6.32, .0, 6.32])
 		energies.insert(6, [5.27, .0, 5.27])
 
 		total_mbar = energies[0][0] - energies[3][0] + energies[1][0] - energies[5][0] + energies[4][0]  - energies[2][0] + energies[6][0]  - energies[7][0] - energies[8][0]

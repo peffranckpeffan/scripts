@@ -3,7 +3,7 @@ mol addfile ../equil/out_eq2.restart.coor molid 0 waitfor all
 mol addfile ../SMD/out_smd.dcd molid 0 waitfor all
 
 set window_path $env(window_path)
-set numframes [molinfo top get numframes]
+set numframes expr{ [molinfo top get numframes] - 1000}
 set range $env(totrange)
 
 set positions [split $env(window_path) ,]
