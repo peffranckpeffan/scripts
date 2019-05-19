@@ -152,7 +152,7 @@ elif (stage == "smd"):
 	#Update dummyatom
 	util.update_dummy('SMD', ['colv-smd'], "../equil/out_eq2.restart.coor", "segname B and backbone", stage)
 
-	util.update_dummy('SMD', ['colv-smd'], "../equil/out_eq2.restart.coor", "segname A and backbone", stage)
+	util.update_dummy('SMD', ['colv-smd'], "../equil/out_eq2.restart.coor", "segname A and backbone", 'equil')
 
 	util.copyAllFilesWith('../common','../SMD', '*')
 	util.copyAllFilesWith('../equil','../SMD', '*eq2_restart.coor*')
@@ -171,7 +171,7 @@ elif (stage == "us"):
 	
 	util.call_subprocess("vmd -dispdev text -e ../scripts/lib/tcl/setup-smd.tcl", "../US", True)
 
-	util.update_dummy('US', ['basic_colv-us'], "../common/system.pdb", "segname A and backbone", 'equil')
+	util.update_dummy('US', ['basic_colv-us'], "../equil/out_eq2.restart.coor", "segname A and backbone", 'equil')
 	util.update_dummy('US', ['basic_colv-us'], "../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
 
 	if(not(Path('../US/u46/out_min-46.restart.coor').exists())):
@@ -342,7 +342,7 @@ elif (stage == 'restraints'):
 	util.call_subprocess("vmd -dispdev text -e ../scripts/lib/tcl/setup-smd.tcl", "../restraints", True)
 
 	basic_colv_list=['basic_colv-rest-bulk', 'basic_colv-rest-lrmsd', 'basic_colv-rest-orient', 'basic_colv-rest-prmsd', 'basic_colv-rest-trans']
-	util.update_dummy('restraints', basic_colv_list, "../common/system.pdb", "segname A and backbone", 'equil')
+	util.update_dummy('restraints', basic_colv_list, "../equil/out_eq2.restart.coor", "segname A and backbone", 'equil')
 	util.update_dummy('restraints', basic_colv_list, "../equil/out_eq2.restart.coor", "segname B and backbone", 'smd')
 
 	multipliers=[0.00, 0.40, 0.80, 1.60, 2.40, 4.00, 5.50, 8.65, 11.80, 18.10, 24.40, 37.00, 49.60, 74.80, 100.00]
